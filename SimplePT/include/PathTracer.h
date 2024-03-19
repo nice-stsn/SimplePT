@@ -3,8 +3,8 @@
 #include <memory>
 #include "Scene.h"
 #include "Camera.h"
+#include "Color.h"
 
-const int CHANNEL_NUM = 3;
 
 class PathTracer
 {
@@ -20,8 +20,11 @@ public:
 
 
 private:
+	static const int CHANNEL_NUM = 3;
 	const Scene& m_scn;
 	const Camera& m_cam;
 	std::unique_ptr<unsigned char[]> m_frame_buffer;
+
+	bool WritePixelColor(unsigned int x_id, unsigned int y_id, const Color3& col);
 
 };

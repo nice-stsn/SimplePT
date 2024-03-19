@@ -138,7 +138,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Camera.h" />
-    <ClInclude Include="include\Header.h" />
+    <ClInclude Include="include\Color.h" />
     <ClInclude Include="include\Hittable\Hittable.h" />
     <ClInclude Include="include\Hittable\Mesh.h" />
     <ClInclude Include="include\Hittable\Sphere.h" />
