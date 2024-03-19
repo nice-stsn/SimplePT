@@ -1,6 +1,6 @@
 
 #include <iostream>
-#include <stb_image_write.h>
+#include "stb_image_write.h"
 
 
 #define CHANNEL_NUM 3
