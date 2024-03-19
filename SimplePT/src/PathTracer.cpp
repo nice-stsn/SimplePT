@@ -3,14 +3,13 @@
 #include "stb_image_write.h"
 
 
-#define CHANNEL_NUM 3
 void PathTracer::Render(int num_samples_per_pixel)
 {
 	std::clog << "start rendering" << std::endl;
 	std::clog << "SPP = " << num_samples_per_pixel << std::endl;
 	
-	const int width = 1024;
-	const int height = 1024;
+	const int width = m_cam.GetWidth();
+	const int height = m_cam.GetHeight();
 
 	/*** NOTICE!! You have to use uint8_t array to pass in stb function  ***/
 	// Because the size of color is normally 255, 8bit.
