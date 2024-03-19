@@ -1,44 +1,31 @@
 
 #include <iostream>
-#include "stb_image_write.h"
+#include "Camera.h"
+#include "PathTracer.h"
 
-
-#define CHANNEL_NUM 3
 
 int main() {
-	std::cout << "Hello, STB_Image" << std::endl;
-	const int width = 200;
-	const int height = 100;
+	// cornell-box.xml
+	//<light mtlname="Light" radiance="34.0, 24.0, 8.0"/>
+	Position3 eye(278.0, 273.0, -800.0);
+	Position3 lookat(278.0, 273.0, -799.0);
+	Vector3 up(0.0, 1.0, 0.0);
+	double fovy = 39.3077;
+	const int width = 1024;
+	const int height = 1024;
 
-	/*** NOTICE!! You have to use uint8_t array to pass in stb function  ***/
-	// Because the size of color is normally 255, 8bit.
-	// If you don't use this one, you will get a weird imge.
-	uint8_t* pixels = new uint8_t[width * height * CHANNEL_NUM];
+	Camera my_cam(eye, lookat, up, fovy, width, height);
 
-	int index = 0;
-	//for (int j = height - 1; j >= 0; --j)
-	for (int j = 0; j < height; ++j)
-	{
-		for (int i = 0; i < width; ++i)
-		{
-			float r = (float)i / (float)width;
-			float g = (float)j / (float)height;
-			float b = 0.2f;
-			int ir = int(255.99 * r);
-			int ig = int(255.99 * g);
-			int ib = int(255.99 * b);
+	/* Load scene: TODO */
+	//string filename;      // .obj file
+	//Scene scn(filename, cam);  // load scene from file
+	//string outputImageName;
+	//scn.Render(outputImageName); // render image
+	Scene my_scn;
 
-			pixels[index++] = ir;
-			pixels[index++] = ig;
-			pixels[index++] = ib;
-		}
-	}
+	PathTracer my_path_tracer(my_scn, my_cam);
 
-	// if CHANNEL_NUM is 4, you can use alpha channel in png
-	stbi_write_png("image/stbpng.png", width, height, CHANNEL_NUM, pixels, width * CHANNEL_NUM);
+	my_path_tracer.Render();
 
-	// You have to use 3 comp for complete jpg file. If not, the image will be grayscale or nothing.
-	stbi_write_jpg("image/stbjpg3.jpg", width, height, 3, pixels, 100);
-	delete[] pixels;
 	return 0;
 }
