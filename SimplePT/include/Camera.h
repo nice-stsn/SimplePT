@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vector.h"
+#include "Ray.h"
 
 class Camera
 {
@@ -12,6 +13,8 @@ public:
 	inline unsigned int GetWidth() const { return m_width; }
 	inline unsigned int GetHeight() const { return m_height; }
 
+	Ray CastRay(unsigned int x_id, unsigned int y_id);
+	
 private:
 	Position3 m_eye, m_lookat;
 	Vector3 m_up;

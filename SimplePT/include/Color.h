@@ -16,6 +16,7 @@ inline double clamp_to_zero_one(double d)
 class Color3
 {
 public:
+	Color3() : m_R(0.0f), m_G(0.0f), m_B(0.0f) {}
 	explicit Color3(unsigned char R, unsigned char G, unsigned B)
 		: m_R(R), m_G(G), m_B(B) {}
 
@@ -25,9 +26,9 @@ public:
 		, m_B(static_cast<int>(clamp_to_zero_one(dB) * 255.999))
 	{}
 
-	unsigned char R() const { return m_R; }
-	unsigned char G() const { return m_G; }
-	unsigned char B() const { return m_B; }
+	inline unsigned char R() const { return m_R; }
+	inline unsigned char G() const { return m_G; }
+	inline unsigned char B() const { return m_B; }
 
 private:
 	unsigned char m_R, m_G, m_B;

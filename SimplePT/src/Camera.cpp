@@ -11,3 +11,8 @@ Camera::Camera(Position3 eye, Position3 lookat, Vector3 up, double fov, unsigned
 	// compute: TODO
 }
 
+Ray Camera::CastRay(unsigned int x_id, unsigned int y_id)
+{
+	// todo
+	return Ray();
+}

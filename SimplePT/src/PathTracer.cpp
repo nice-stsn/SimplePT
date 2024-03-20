@@ -1,9 +1,17 @@
 #include <iostream>
 #include "PathTracer.h"
+#include "Ray.h"
 #include "Color.h"
 #include "stb_image_write.h"
 
-inline bool PathTracer::WritePixelColor(unsigned int x_id, unsigned int y_id, const Color3& col)
+
+bool PathTracer::m_HitHappend(const Ray& eye_ray, HitRecord& hit_record)
+{
+	// todo
+	return true;
+}
+
+inline bool PathTracer::m_WritePixelColor(unsigned int x_id, unsigned int y_id, const Color3& col)
 {
 	if (m_frame_buffer == nullptr)
 	{
@@ -11,7 +19,7 @@ inline bool PathTracer::WritePixelColor(unsigned int x_id, unsigned int y_id, co
 		return false;
 	}
 
-	unsigned pixel_index = m_cam.GetWidth() * y_id + x_id;
+	size_t pixel_index = static_cast<size_t>(m_camera.GetWidth()) * y_id + x_id;
 	m_frame_buffer[pixel_index * 3 + 0] = col.R();
 	m_frame_buffer[pixel_index * 3 + 1] = col.G();
 	m_frame_buffer[pixel_index * 3 + 2] = col.B();
@@ -24,8 +32,8 @@ void PathTracer::Render(int num_samples_per_pixel)
 	std::clog << "start rendering" << std::endl;
 	std::clog << "SPP = " << num_samples_per_pixel << std::endl;
 	
-	const int width = m_cam.GetWidth();
-	const int height = m_cam.GetHeight();
+	const int width = m_camera.GetWidth();
+	const int height = m_camera.GetHeight();
 
 	int index = 0;
 	for (int j = 0; j < height; ++j)
@@ -37,13 +45,22 @@ void PathTracer::Render(int num_samples_per_pixel)
 			float g = (float)j / (float)height;
 			float b = 0.2f;
 			
-			Color3 color(r, g, b);
+			Color3 pixel_color;
 
 			/* ray intersection: TODO */
+			Ray eye_ray; // gen ray from eye
+			HitRecord hit_record;
+			if (m_HitHappend(eye_ray, hit_record))
+			{
+				pixel_color = Color3(r, g, b);
+			}
+
+			//Shade(hit_recor, pixel_colr);
+
 
 			/* shading: TODO */
 
-			WritePixelColor(i, j, color);
+			m_WritePixelColor(i, j, pixel_color);
 		}
 	}
 
