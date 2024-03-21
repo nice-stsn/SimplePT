@@ -12,15 +12,15 @@ class PathTracer
 public:
 	PathTracer(const Scene& scn, const Camera& cam) : m_scene(scn), m_camera(cam) {
 		m_frame_buffer 
-			= std::make_unique<unsigned char[]>(cam.GetWidth() * cam.GetHeight() * CHANNEL_NUM);
+			= std::make_unique<unsigned char[]>(m_camera.GetWidth() * m_camera.GetHeight() * CHANNEL_NUM);
 	}
 
 
 	void Render(int num_samples_per_pixel = 1);
 
 private:
-	const Scene& m_scene;
-	const Camera& m_camera;
+	const Scene& m_scene;   // for simplicity
+	const Camera& m_camera; // for simplicity
 	unsigned int m_width, m_height;
 	std::unique_ptr<unsigned char[]> m_frame_buffer;
 

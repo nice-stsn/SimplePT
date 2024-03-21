@@ -11,8 +11,9 @@ int main() {
 	Position3 lookat(278.0, 273.0, -799.0);
 	Vector3 up(0.0, 1.0, 0.0);
 	double fovy = 39.3077;
-	const int width = 1024;
-	const int height = 1024;
+	//unsigned int width = 1024;
+	unsigned int width = 2048;  // for debugging
+	unsigned int height = 1024;
 
 	Camera my_cam(eye, lookat, up, fovy, width, height);
 

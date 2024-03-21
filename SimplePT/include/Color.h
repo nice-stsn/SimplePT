@@ -16,7 +16,7 @@ inline double clamp_to_zero_one(double d)
 class Color3
 {
 public:
-	Color3() : m_R(0.0f), m_G(0.0f), m_B(0.0f) {}
+	Color3() : m_R(0), m_G(0), m_B(0) {}
 	explicit Color3(unsigned char R, unsigned char G, unsigned B)
 		: m_R(R), m_G(G), m_B(B) {}
 

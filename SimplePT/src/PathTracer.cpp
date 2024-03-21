@@ -48,17 +48,16 @@ void PathTracer::Render(int num_samples_per_pixel)
 			Color3 pixel_color;
 
 			/* ray intersection: TODO */
-			Ray eye_ray; // gen ray from eye
+			Ray eye_ray = m_camera.CastRay(i, j); // generate ray from eye
 			HitRecord hit_record;
+
 			if (m_HitHappend(eye_ray, hit_record))
 			{
 				pixel_color = Color3(r, g, b);
+				/* shading: TODO */
+				//Shade(hit_recor, pixel_colr);
 			}
 
-			//Shade(hit_recor, pixel_colr);
-
-
-			/* shading: TODO */
 
 			m_WritePixelColor(i, j, pixel_color);
 		}
