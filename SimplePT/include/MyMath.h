@@ -11,6 +11,11 @@ namespace SimplePT {
 	{
 		return deg / 180 * PI;
 	}
+	
+	inline bool Equal(double a, double b)
+	{
+		return std::abs(a - b) < EPSILON;
+	}
 
 
 

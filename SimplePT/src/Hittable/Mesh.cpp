@@ -1,5 +1,6 @@
 #include "Hittable/Mesh.h"
 #include "MyMath.h"
+#include <cassert>
 
 
 // single triangle for debugging
@@ -39,24 +40,56 @@ bool Mesh::HitHappened(const Ray& ray, double t_min, double t_max, HitRecord& hi
 	return b_hit_happened;
 }
 
-bool Mesh::m_HitTriangle(const Ray& ray, const Position3& v0, const Position3& v1, const Position3& v2, double& t) const
+bool Mesh::m_HitTriangle(const Ray& ray, const Position3& v0, const Position3& v1, const Position3& v2, double& t_out) const
 {
-	// debug single_triangle
-	// find t
-	Position3 eye = ray.GetOrigin();
-	Vector3 dir = ray.GetDirection();
-	double plane_z = v0.m_z; // assmune v0, v1, v2 at the same plane
-	t = (plane_z - eye.m_z) / dir.m_z;
-	if (t < 0)
-		return false;
+	// Moller-Trumbore Algorithm https://zhuanlan.zhihu.com/p/451582864
+	Vector3 S = ray.GetOrigin() - v0;
+	Vector3 d = ray.GetDirection();
+	Vector3 E1 = v1 - v0;
+	Vector3 E2 = v2 - v0;
+	Vector3 S1 = CrossProduct(d, E2);
+	Vector3 S2 = CrossProduct(S, E1);
 
-	// v2
-	// v1   v0
-	double hit_x = eye.m_x + t * dir.m_x;
-	double hit_y = eye.m_y + t * dir.m_y;
-	if (hit_x > v2.m_x && hit_y > v0.m_y && hit_x < v0.m_x && hit_y < v2.m_y)
-		return true;
-	else 
+	double S1E1 = DotProduct(S1, E1);
+	if (SimplePT::Equal(S1E1, 0))
+	{
+		// eye ray is in the plane of triangle
 		return false;
+	}
+	double t = DotProduct(S2, E2) / S1E1;
+	double b1 = DotProduct(S1, S) / S1E1;
+	double b2 = DotProduct(d, S2) / S1E1;
+
+	if (t >= SimplePT::EPSILON && b1 >= 0.0f && b2 >= 0.0f && (1 - b1 - b2) >= 0.0f)
+	{
+		t_out = t;
+
+		/* future texture */
+		// u = b1;
+		// v = b2;
+		return true;
+	}
+	return false;
+
+	
+
+	//// debug single_triangle
+	//// find t
+	//Position3 eye = ray.GetOrigin();
+	//Vector3 dir = ray.GetDirection();
+	//double plane_z = v0.m_z; // assmune v0, v1, v2 at the same plane
+	//t = (plane_z - eye.m_z) / dir.m_z;
+	//if (t < 0)
+	//	return false;
+
+	//// find 
+	//// v2
+	//// v1   v0
+	//double hit_x = eye.m_x + t * dir.m_x;
+	//double hit_y = eye.m_y + t * dir.m_y;
+	//if (hit_x > v2.m_x && hit_y > v0.m_y && hit_x < v0.m_x && hit_y < v2.m_y)
+	//	return true;
+	//else 
+	//	return false;
 
 }

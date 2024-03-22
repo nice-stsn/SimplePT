@@ -21,8 +21,8 @@ Camera::Camera(const Position3& eye, const Position3& lookat, const Vector3& up,
 	// R(unit): point to right relative to camera
 	// U(unit): point to up relative to camera
 	Vector3 F = (m_eye - m_lookat).Normalized();
-	Vector3 R = Cross(m_up, F).Normalized();
-	Vector3 U = Cross(F, R).Normalized();
+	Vector3 R = CrossProduct(m_up, F).Normalized();
+	Vector3 U = CrossProduct(F, R).Normalized();
 
 	double pixel_width = 2 * half_width / m_image_width;     // left to right
 	double pixel_height = 2 * half_height / m_image_height;  // top  to bottom

@@ -81,7 +81,15 @@ public:
 	double m_x, m_y, m_z;
 };
 
-inline Vector3 Cross(const Vector3& vl, const Vector3& vr)
+inline double DotProduct(const Vector3& vl, const Vector3& vr)
+{
+	return 
+		vl.m_x * vr.m_x +
+		vl.m_y * vr.m_y +
+		vl.m_z * vr.m_z;
+}
+
+inline Vector3 CrossProduct(const Vector3& vl, const Vector3& vr)
 {
 	return Vector3(
 		vl.m_y * vr.m_z - vl.m_z * vr.m_y,
