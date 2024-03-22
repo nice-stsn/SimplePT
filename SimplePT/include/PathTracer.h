@@ -24,7 +24,6 @@ private:
 	unsigned int m_width, m_height;
 	std::unique_ptr<unsigned char[]> m_frame_buffer;
 
-	bool m_HitHappend(const Ray& eye_ray, HitRecord& hit_record);
 	bool m_WritePixelColor(unsigned int x_id, unsigned int y_id, const Color3& col);
 
 	static const int CHANNEL_NUM = 3;

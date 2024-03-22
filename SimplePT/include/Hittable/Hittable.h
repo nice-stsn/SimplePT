@@ -1,15 +1,16 @@
 #pragma once
 
 #include "Ray.h"
+#include "Color.h"
 
 
-class HitRecord
+struct HitRecord
 {
-public:
+	Color3 m_color;
+	Position3 m_hit_position;
+	Position3 m_hit_unit_normal;
 
-
-private:
-
+	double m_t;
 
 };
 
@@ -18,7 +19,7 @@ class HittableBase
 public:
 	HittableBase() {}
 	virtual ~HittableBase() = 0;
-	virtual bool Hit(const Ray& ray, double t_min, double t_max, HitRecord& hit_record) = 0;
+	virtual bool HitHappened(const Ray& ray, double t_min, double t_max, HitRecord& hit_record) const = 0;
 private:
 
 };

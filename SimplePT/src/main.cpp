@@ -20,9 +20,13 @@ int main() {
 	/* Load scene: TODO */
 	//string filename;      // .obj file
 	//Scene scn(filename, cam);  // load scene from file
-	//string outputImageName;
-	//scn.Render(outputImageName); // render image
+
 	Scene my_scn;
+	Position3 v0(549.6, 0, 559.2);
+	Position3 v1(0, 0, 559.2);
+	Position3 v2(0, 548.8, 559.2);
+	std::shared_ptr<HittableBase> p_debug_triangle = std::make_shared<Mesh>(v0, v1, v2);
+	my_scn.AddHittableObject(p_debug_triangle);
 
 	PathTracer my_path_tracer(my_scn, my_cam);
 

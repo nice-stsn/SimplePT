@@ -12,6 +12,10 @@ public:
 		return m_origin + m_dir * t;
 	}
 
+	inline Position3 GetOrigin() const { return m_origin; }
+	inline Vector3 GetUnitDir() const { return m_dir.Normalized(); }
+	inline Vector3 GetDirection() const { return m_dir; }
+
 private:
 	Position3 m_origin;
 	Vector3 m_dir; // not unit 

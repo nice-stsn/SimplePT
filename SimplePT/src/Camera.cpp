@@ -20,7 +20,7 @@ Camera::Camera(const Position3& eye, const Position3& lookat, const Vector3& up,
 	// F(unit): point from lookat to eye (point to foward)
 	// R(unit): point to right relative to camera
 	// U(unit): point to up relative to camera
-	Vector3 F = (m_lookat - m_eye).Normalized();
+	Vector3 F = (m_eye - m_lookat).Normalized();
 	Vector3 R = Cross(m_up, F).Normalized();
 	Vector3 U = Cross(F, R).Normalized();
 

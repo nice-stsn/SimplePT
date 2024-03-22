@@ -1,15 +1,11 @@
 #include <iostream>
 #include "PathTracer.h"
+#include "MyMath.h"
 #include "Ray.h"
 #include "Color.h"
 #include "stb_image_write.h"
 
 
-bool PathTracer::m_HitHappend(const Ray& eye_ray, HitRecord& hit_record)
-{
-	// todo
-	return true;
-}
 
 inline bool PathTracer::m_WritePixelColor(unsigned int x_id, unsigned int y_id, const Color3& col)
 {
@@ -51,12 +47,14 @@ void PathTracer::Render(int num_samples_per_pixel)
 			Ray eye_ray = m_camera.CastRay(i, j); // generate ray from eye
 			HitRecord hit_record;
 
-			if (m_HitHappend(eye_ray, hit_record))
+			if (m_scene.HitHappened(eye_ray, SimplePT::EPSILON, SimplePT::INF, hit_record))
 			{
-				pixel_color = Color3(r, g, b);
 				/* shading: TODO */
 				//Shade(hit_recor, pixel_colr);
+				pixel_color = hit_record.m_color;
 			}
+			else // background
+				pixel_color = Color3(r, g, b);
 
 
 			m_WritePixelColor(i, j, pixel_color);
