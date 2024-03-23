@@ -22,7 +22,7 @@ Mesh::Mesh(const std::string& filename, const std::string& mtl_basepath)
 	}
 	if (!err.empty())
 	{
-		std::cerr << "WARN: " << warn << std::endl;
+		std::cerr << "ERROR: " << err << std::endl;
 	}
 
 	if (!ret)
@@ -41,21 +41,6 @@ Mesh::Mesh(const std::string& filename, const std::string& mtl_basepath)
 		m_num_tris += static_cast<unsigned int>(m_shapes[i].mesh.num_face_vertices.size());
 	}
 
-}
-
-// single triangle for debugging
-Mesh::Mesh(const Vector3& v0, const Vector3& v1, const Vector3& v2)
-{
-	//m_vertices = std::make_unique<Position3[]>(3);
-	//m_triangles = std::make_unique<TriangleVid[]>(1);
-	//m_vertices[0] = v0;
-	//m_vertices[1] = v1;
-	//m_vertices[2] = v2;
-	//m_triangles[0].vid0 = 0;
-	//m_triangles[0].vid1 = 1;
-	//m_triangles[0].vid2 = 2;
-	//m_num_tris = 1;
-	//m_num_vtxs = 3;
 }
 
 
@@ -85,6 +70,8 @@ void Mesh::m_GetVertex(const tinyobj::index_t& v_id, VertexAttribs& out_vertex) 
 
 	out_vertex.position = Position3(px, py, pz);
 	out_vertex.normal = Vector3(nx, ny, nz);
+	// todo: texture
+
 }
 
 

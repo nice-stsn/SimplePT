@@ -58,6 +58,9 @@ void PathTracer::Render(int num_samples_per_pixel)
 
 
 			m_WritePixelColor(i, j, pixel_color);
+///* get processing image for debuggging */
+//// if CHANNEL_NUM is 4, you can use alpha channel in png
+//stbi_write_png("image/debug.png", width, height, CHANNEL_NUM, m_frame_buffer.get(), width * CHANNEL_NUM);
 		}
 	}
 

@@ -8,7 +8,7 @@
 class Scene : public HittableBase
 {
 public:
-	Scene() {}
+	Scene() = default;
 	virtual ~Scene() override;
 
 	void AddHittableObject(const std::shared_ptr<HittableBase>& actor);

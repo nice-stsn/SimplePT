@@ -7,6 +7,7 @@
 
 struct HitRecord
 {
+	HitRecord() = default;
 	Color3 m_color;
 	Position3 m_hit_position;
 	Position3 m_hit_unit_normal;
