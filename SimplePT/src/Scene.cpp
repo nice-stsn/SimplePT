@@ -1,11 +1,11 @@
 #include "Scene.h"
 #include "MyMath.h"
 
+
 Scene::~Scene()
 {
 
 }
-
 
 
 bool Scene::HitHappened(const Ray& ray, double t_min, double t_max, HitRecord& hit_record) const

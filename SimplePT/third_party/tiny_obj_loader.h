@@ -652,6 +652,15 @@ bool ParseTextureNameAndOption(std::string *texname, texture_option_t *texopt,
 
 }  // namespace tinyobj
 
+
+// SimplePT project add for debugging
+namespace tinyobj {
+	// https://github.com/tinyobjloader/tinyobjloader/blob/release/loader_example.cc#L105
+	void PrintInfo(
+		const tinyobj::attrib_t& attrib,
+		const std::vector<tinyobj::shape_t>& shapes,
+		const std::vector<tinyobj::material_t>& materials);
+}
 #endif  // TINY_OBJ_LOADER_H_
 
 #ifdef TINYOBJLOADER_IMPLEMENTATION

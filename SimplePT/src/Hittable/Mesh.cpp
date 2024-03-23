@@ -1,39 +1,122 @@
 #include "Hittable/Mesh.h"
 #include "MyMath.h"
+#include "tiny_obj_loader.h"
+#include <vector>
+#include <iostream>
 #include <cassert>
 
+Mesh::Mesh(const std::string& filename, const std::string& mtl_basepath)
+{
+	// use tiny_obj_loader: https://github.com/tinyobjloader/tinyobjloader/blob/release/loader_example.cc
+	bool triangulate = true; // ? how do i know
+	std::string warn;
+	std::string err;
+
+	std::clog << "Start loading obj...\nPlease wait..." << std::endl;
+	bool ret = tinyobj::LoadObj(&m_attrib, &m_shapes, &m_materials, &warn, &err,
+		filename.c_str(), mtl_basepath.c_str(), triangulate);
+
+	if (!warn.empty())
+	{
+		std::clog << "WARN: " << warn << std::endl;
+	}
+	if (!err.empty())
+	{
+		std::cerr << "WARN: " << warn << std::endl;
+	}
+
+	if (!ret)
+	{
+		std::cerr << "Failed to load: " << filename << std::endl;
+		return;
+	}
+	
+	tinyobj::PrintInfo(m_attrib, m_shapes, m_materials);
+	// end tinyobj load
+
+	m_num_vtxs = static_cast<int>(m_attrib.vertices.size()) / 3;
+	m_num_tris = 0;
+	for (size_t i = 0; i < m_shapes.size(); ++i)
+	{
+		m_num_tris += static_cast<unsigned int>(m_shapes[i].mesh.num_face_vertices.size());
+	}
+
+}
 
 // single triangle for debugging
 Mesh::Mesh(const Vector3& v0, const Vector3& v1, const Vector3& v2)
 {
-	m_vertices = std::make_unique<Position3[]>(3);
-	m_triangles = std::make_unique<TriangleVid[]>(1);
-	m_vertices[0] = v0;
-	m_vertices[1] = v1;
-	m_vertices[2] = v2;
-	m_triangles[0].vid0 = 0;
-	m_triangles[0].vid1 = 1;
-	m_triangles[0].vid2 = 2;
-	m_num_tris = 1;
-	m_num_vtxs = 3;
+	//m_vertices = std::make_unique<Position3[]>(3);
+	//m_triangles = std::make_unique<TriangleVid[]>(1);
+	//m_vertices[0] = v0;
+	//m_vertices[1] = v1;
+	//m_vertices[2] = v2;
+	//m_triangles[0].vid0 = 0;
+	//m_triangles[0].vid1 = 1;
+	//m_triangles[0].vid2 = 2;
+	//m_num_tris = 1;
+	//m_num_vtxs = 3;
 }
+
+
+void Mesh::m_GetFace(unsigned int f_id, TriangleVid& out_tri) const
+{
+	// for scnens in 'example-scenes-cg23', shape.size() == 1
+	assert(m_shapes.size() == 1);
+
+	const tinyobj::mesh_t& mesh = m_shapes[0].mesh;
+	int num_face = m_shapes[0].mesh.num_face_vertices[0]; // 3 is triangle, 4 is quad ..
+	out_tri.vid0 = mesh.indices[f_id * num_face + 0];
+	out_tri.vid1 = mesh.indices[f_id * num_face + 1];
+	out_tri.vid2 = mesh.indices[f_id * num_face + 2];
+
+}
+
+
+void Mesh::m_GetVertex(const tinyobj::index_t& v_id, VertexAttribs& out_vertex) const
+{
+	double px = m_attrib.vertices[v_id.vertex_index * 3 + 0];
+	double py = m_attrib.vertices[v_id.vertex_index * 3 + 1];
+	double pz = m_attrib.vertices[v_id.vertex_index * 3 + 2];
+
+	double nx = m_attrib.normals[v_id.vertex_index * 3 + 0];
+	double ny = m_attrib.normals[v_id.vertex_index * 3 + 1];
+	double nz = m_attrib.normals[v_id.vertex_index * 3 + 2];
+
+	out_vertex.position = Position3(px, py, pz);
+	out_vertex.normal = Vector3(nx, ny, nz);
+}
+
+
 
 bool Mesh::HitHappened(const Ray& ray, double t_min, double t_max, HitRecord& hit_record) const
 {
-	// todo
 	// bf: iterate over all triangles
+	// for scnen in 'example-scenes-cg23', shape.size() == 1
+	assert(m_shapes.size() == 1);
+
 	bool b_hit_happened = false;
 	for (unsigned int i = 0; i < m_num_tris; ++i)
 	{
-		Position3 v0 = m_vertices[m_triangles[i].vid0];
-		Position3 v1 = m_vertices[m_triangles[i].vid1];
-		Position3 v2 = m_vertices[m_triangles[i].vid2];
+		TriangleVid tri;
+		m_GetFace(i, tri);
+
+		VertexAttribs v0, v1, v2;
+		m_GetVertex(tri.vid0, v0);
+		m_GetVertex(tri.vid1, v1);
+		m_GetVertex(tri.vid2, v2);
+
 		double t_triangle = -1;
-		if (m_HitTriangle(ray, v0, v1, v2, t_triangle) && t_triangle > t_min && t_triangle < t_max)
+		if (m_HitTriangle(ray, v0.position, v1.position, v2.position, t_triangle) && t_triangle > t_min && t_triangle < t_max && t_triangle < hit_record.m_t)
 		{
+			hit_record.m_t = t_triangle; // record smaller
 			b_hit_happened = true;
-			hit_record.m_t = t_triangle;
-			hit_record.m_color = Color3(255u, 0u, 0u);
+
+			// shading with normal
+			Vector3 avg_normal = ((v0.normal + v1.normal + v2.normal) / 3).Normalized();
+			//hit_record.m_color = Color3(255u, 0u, 0u); // RED
+			hit_record.m_color = Color3(avg_normal.m_x, avg_normal.m_y, avg_normal.m_z); // normal
+
 		}
 	}
 
@@ -70,26 +153,5 @@ bool Mesh::m_HitTriangle(const Ray& ray, const Position3& v0, const Position3& v
 		return true;
 	}
 	return false;
-
-	
-
-	//// debug single_triangle
-	//// find t
-	//Position3 eye = ray.GetOrigin();
-	//Vector3 dir = ray.GetDirection();
-	//double plane_z = v0.m_z; // assmune v0, v1, v2 at the same plane
-	//t = (plane_z - eye.m_z) / dir.m_z;
-	//if (t < 0)
-	//	return false;
-
-	//// find 
-	//// v2
-	//// v1   v0
-	//double hit_x = eye.m_x + t * dir.m_x;
-	//double hit_y = eye.m_y + t * dir.m_y;
-	//if (hit_x > v2.m_x && hit_y > v0.m_y && hit_x < v0.m_x && hit_y < v2.m_y)
-	//	return true;
-	//else 
-	//	return false;
 
 }

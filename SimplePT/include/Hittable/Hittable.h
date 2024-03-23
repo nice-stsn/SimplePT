@@ -2,6 +2,7 @@
 
 #include "Ray.h"
 #include "Color.h"
+#include "MyMath.h"
 
 
 struct HitRecord
@@ -10,7 +11,7 @@ struct HitRecord
 	Position3 m_hit_position;
 	Position3 m_hit_unit_normal;
 
-	double m_t;
+	double m_t = SimplePT::INF;
 
 };
 
