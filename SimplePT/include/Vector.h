@@ -74,8 +74,13 @@ public:
 
 	inline Vector3 Normalized() const
 	{
-		double len = std::sqrt(m_x * m_x + m_y * m_y + m_z * m_z);
+		double len = Length();
 		return Vector3(m_x / len, m_y / len, m_z / len);
+	}
+
+	inline double Length() const
+	{
+		return std::sqrt(m_x * m_x + m_y * m_y + m_z * m_z);
 	}
 
 	double m_x, m_y, m_z;

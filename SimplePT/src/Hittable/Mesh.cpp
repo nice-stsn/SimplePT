@@ -9,7 +9,7 @@ Mesh::Mesh(const std::string& filename, const std::string& mtl_basepath, const s
 	: m_light_mtlname(light_mtl_name), m_radiance(light_radiance)
 {
 	// use tiny_obj_loader: https://github.com/tinyobjloader/tinyobjloader/blob/release/loader_example.cc
-	bool triangulate = true; // ? how do i know
+	bool triangulate = true; // how do i know? todo.
 	std::string warn;
 	std::string err;
 
@@ -34,13 +34,13 @@ Mesh::Mesh(const std::string& filename, const std::string& mtl_basepath, const s
 	// end tinyobj load
 
 	// set light materials
-	for (auto material : m_materials)
+	for (auto& material : m_materials)
 	{
 		if (material.name == m_light_mtlname)
 		{
-			material.emission[0] = m_radiance.m_x;
-			material.emission[1] = m_radiance.m_y;
-			material.emission[2] = m_radiance.m_z;
+			material.emission[0] = static_cast<tinyobj::real_t>(m_radiance.m_x);
+			material.emission[1] = static_cast<tinyobj::real_t>(m_radiance.m_y);
+			material.emission[2] = static_cast<tinyobj::real_t>(m_radiance.m_z);
 		}
 	}
 
@@ -92,6 +92,7 @@ void Mesh::m_GetVertex(const tinyobj::index_t& v_id, VertexAttribs& out_vertex) 
 bool Mesh::HitHappened(const Ray& ray, HitRecord& out_hit_record, double t_min, double t_max) const 
 {
 	// bf: iterate over all triangles
+	// todo: bvh
 	// for scnen in 'example-scenes-cg23', shape.size() == 1
 	assert(m_shapes.size() == 1);
 
@@ -114,9 +115,8 @@ bool Mesh::HitHappened(const Ray& ray, HitRecord& out_hit_record, double t_min, 
 
 			// shading with normal
 			Vector3 avg_normal = ((v0.normal + v1.normal + v2.normal) / 3).Normalized();
-			//out_hit_record.m_color = Color3(255u, 0u, 0u); // RED
-			out_hit_record.m_color = Color3(avg_normal.m_x, avg_normal.m_y, avg_normal.m_z); // todo: delte this, color should be computed outside; only return hit_recor
 			out_hit_record.m_hit_unit_normal = avg_normal; // flat normal
+			out_hit_record.m_material = tri.tri_material;
 		}
 	}
 

@@ -76,18 +76,20 @@ Color3 PathTracer::m_RayColor(const Ray& ray) const
 	if (!m_scene.HitHappened(ray, hit_record))
 		return Color3(); // defualt color (black)
 
-	// debug: normal shading
-	Vector3 normal = hit_record.m_hit_unit_normal;
-	return Color3(std::abs(normal.m_x), std::abs(normal.m_y), std::abs(normal.m_z));
+	//// debug: normal shading
+	//Vector3 normal = hit_record.m_hit_unit_normal;
+	//return Color3(std::abs(normal.m_x), std::abs(normal.m_y), std::abs(normal.m_z));
 
 	/* first term: Le(x1 -> x0) */
-	Color3 emit_color( hit_record.m_material.GetEmission());
-	out_color += emit_color;
+	if (hit_record.m_material.HasEmission())
+	{
+		Color3 emit_color(hit_record.m_material.GetEmission());
+		out_color += emit_color;
+	}
 
-
-	/* second term: \int Le(x2 -> x1) * f(x2 -> x1 -> x0) * cos(\theta) dw */
-	// random_point_on_light = pdfAreaLight(); // uniform p = 1/A && 1/p = A
-	// dir = brdf * (n * w) * (n' * w') * light_emmit / R^2 / p; (integral on dA)
+	/* second term: \int le(x2 -> x1) * f(x2 -> x1 -> x0) * cos(\theta) dw */
+	// random_point_on_light = pdfarealight(); // uniform p = 1/a && 1/p = a
+	// dir = brdf * (n * w) * (n' * w') * light_emmit / r ^ 2 / p; (integral on da)
 
 
 	/* sampling exept light */
