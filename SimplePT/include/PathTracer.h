@@ -25,6 +25,7 @@ private:
 	std::unique_ptr<unsigned char[]> m_frame_buffer;
 
 	bool m_WritePixelColor(unsigned int x_id, unsigned int y_id, const Color3& col);
+	Color3 m_RayColor(const Ray& ray) const;
 
 	static const int CHANNEL_NUM = 3;
 };

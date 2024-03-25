@@ -5,7 +5,8 @@
 #include <iostream>
 #include <cassert>
 
-Mesh::Mesh(const std::string& filename, const std::string& mtl_basepath)
+Mesh::Mesh(const std::string& filename, const std::string& mtl_basepath, const std::string& light_mtl_name, const Vector3& light_radiance)
+	: m_light_mtlname(light_mtl_name), m_radiance(light_radiance)
 {
 	// use tiny_obj_loader: https://github.com/tinyobjloader/tinyobjloader/blob/release/loader_example.cc
 	bool triangulate = true; // ? how do i know
@@ -24,15 +25,24 @@ Mesh::Mesh(const std::string& filename, const std::string& mtl_basepath)
 	{
 		std::cerr << "ERROR: " << err << std::endl;
 	}
-
 	if (!ret)
 	{
 		std::cerr << "Failed to load: " << filename << std::endl;
 		return;
 	}
-	
 	tinyobj::PrintInfo(m_attrib, m_shapes, m_materials);
 	// end tinyobj load
+
+	// set light materials
+	for (auto material : m_materials)
+	{
+		if (material.name == m_light_mtlname)
+		{
+			material.emission[0] = m_radiance.m_x;
+			material.emission[1] = m_radiance.m_y;
+			material.emission[2] = m_radiance.m_z;
+		}
+	}
 
 	m_num_vtxs = static_cast<int>(m_attrib.vertices.size()) / 3;
 	m_num_tris = 0;
@@ -44,7 +54,7 @@ Mesh::Mesh(const std::string& filename, const std::string& mtl_basepath)
 }
 
 
-void Mesh::m_GetFace(unsigned int f_id, TriangleVid& out_tri) const
+void Mesh::m_GetFaceInfo(unsigned int f_id, Triangle_info& out_tri) const
 {
 	// for scnens in 'example-scenes-cg23', shape.size() == 1
 	assert(m_shapes.size() == 1);
@@ -54,6 +64,9 @@ void Mesh::m_GetFace(unsigned int f_id, TriangleVid& out_tri) const
 	out_tri.vid0 = mesh.indices[f_id * num_face + 0];
 	out_tri.vid1 = mesh.indices[f_id * num_face + 1];
 	out_tri.vid2 = mesh.indices[f_id * num_face + 2];
+
+	int material_id = mesh.material_ids[f_id];
+	out_tri.tri_material = Material(m_materials[material_id]);
 
 }
 
@@ -76,7 +89,7 @@ void Mesh::m_GetVertex(const tinyobj::index_t& v_id, VertexAttribs& out_vertex) 
 
 
 
-bool Mesh::HitHappened(const Ray& ray, double t_min, double t_max, HitRecord& hit_record) const
+bool Mesh::HitHappened(const Ray& ray, HitRecord& out_hit_record, double t_min, double t_max) const 
 {
 	// bf: iterate over all triangles
 	// for scnen in 'example-scenes-cg23', shape.size() == 1
@@ -85,8 +98,8 @@ bool Mesh::HitHappened(const Ray& ray, double t_min, double t_max, HitRecord& hi
 	bool b_hit_happened = false;
 	for (unsigned int i = 0; i < m_num_tris; ++i)
 	{
-		TriangleVid tri;
-		m_GetFace(i, tri);
+		Triangle_info tri;
+		m_GetFaceInfo(i, tri);
 
 		VertexAttribs v0, v1, v2;
 		m_GetVertex(tri.vid0, v0);
@@ -94,16 +107,16 @@ bool Mesh::HitHappened(const Ray& ray, double t_min, double t_max, HitRecord& hi
 		m_GetVertex(tri.vid2, v2);
 
 		double t_triangle = -1;
-		if (m_HitTriangle(ray, v0.position, v1.position, v2.position, t_triangle) && t_triangle > t_min && t_triangle < t_max && t_triangle < hit_record.m_t)
+		if (m_HitTriangle(ray, v0.position, v1.position, v2.position, t_triangle) && t_triangle > t_min && t_triangle < t_max && t_triangle < out_hit_record.m_t)
 		{
-			hit_record.m_t = t_triangle; // record smaller
+			out_hit_record.m_t = t_triangle; // record smaller
 			b_hit_happened = true;
 
 			// shading with normal
 			Vector3 avg_normal = ((v0.normal + v1.normal + v2.normal) / 3).Normalized();
-			//hit_record.m_color = Color3(255u, 0u, 0u); // RED
-			hit_record.m_color = Color3(avg_normal.m_x, avg_normal.m_y, avg_normal.m_z); // normal
-
+			//out_hit_record.m_color = Color3(255u, 0u, 0u); // RED
+			out_hit_record.m_color = Color3(avg_normal.m_x, avg_normal.m_y, avg_normal.m_z); // todo: delte this, color should be computed outside; only return hit_recor
+			out_hit_record.m_hit_unit_normal = avg_normal; // flat normal
 		}
 	}
 

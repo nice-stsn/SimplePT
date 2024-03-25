@@ -133,6 +133,7 @@
     <ClCompile Include="src\Hittable.cpp" />
     <ClCompile Include="src\Hittable\Mesh.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Material.cpp" />
     <ClCompile Include="src\MyMath.cpp" />
     <ClCompile Include="src\PathTracer.cpp" />
     <ClCompile Include="src\Scene.cpp" />
@@ -147,6 +148,7 @@
     <ClInclude Include="include\Hittable\Mesh.h" />
     <ClInclude Include="include\Hittable\Sphere.h" />
     <ClInclude Include="include\Hittable\Triangle.h" />
+    <ClInclude Include="include\Material\Material.h" />
     <ClInclude Include="include\MyMath.h" />
     <ClInclude Include="include\PathTracer.h" />
     <ClInclude Include="include\Ray.h" />

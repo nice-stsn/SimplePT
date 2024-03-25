@@ -6,7 +6,8 @@
 
 int main() {
 	// cornell-box.xml
-	//<light mtlname="Light" radiance="34.0, 24.0, 8.0"/>
+	std::string light_mtlname = "Light";
+	Vector3 radiance(34.0, 24.0, 8.0);
 	Position3 eye(278.0, 273.0, -800.0);
 	Position3 lookat(278.0, 273.0, -799.0);
 	Vector3 up(0.0, 1.0, 0.0);
@@ -35,7 +36,7 @@ int main() {
 	//std::string mtl_basepath = "./example-scenes-cg23/bathroom/"; // .obj file
 	//std::string filename = "./example-scenes-cg23/veach-mis/veach-mis.obj"; // .obj file
 	//std::string mtl_basepath = "./example-scenes-cg23/veach-mis/"; // .obj file
-	std::shared_ptr<HittableBase> p_mesh = std::make_shared<Mesh>(filename, mtl_basepath);
+	std::shared_ptr<HittableBase> p_mesh = std::make_shared<Mesh>(filename, mtl_basepath, light_mtlname, radiance);
 
 	Scene my_scn;
 	my_scn.AddHittableObject(p_mesh);

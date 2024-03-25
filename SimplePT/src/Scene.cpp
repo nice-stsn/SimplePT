@@ -6,8 +6,7 @@ Scene::~Scene()
 {
 }
 
-
-bool Scene::HitHappened(const Ray& ray, double t_min, double t_max, HitRecord& hit_record) const
+bool Scene::HitHappened(const Ray& ray, HitRecord& out_hit_record, double t_min, double t_max) const 
 {
 	double t_near = SimplePT::INF;
 	bool b_hit_happened = false;
@@ -17,11 +16,11 @@ bool Scene::HitHappened(const Ray& ray, double t_min, double t_max, HitRecord& h
 	for (std::shared_ptr<HittableBase> actor : m_actors)
 	{
 		// compare & update
-		if (actor->HitHappened(ray, t_min, t_near, local_record) && local_record.m_t < t_near)
+		if (actor->HitHappened(ray, local_record, t_min, t_near) && local_record.m_t < t_near)
 		{
 			b_hit_happened = true;
 			t_near = local_record.m_t;
-			hit_record = local_record;
+			out_hit_record = local_record;
 		}
 	}
 	

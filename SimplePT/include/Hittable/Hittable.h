@@ -3,14 +3,17 @@
 #include "Ray.h"
 #include "Color.h"
 #include "MyMath.h"
+#include "Material/Material.h"
 
 
 struct HitRecord
 {
 	HitRecord() = default;
-	Color3 m_color;
+	Color3 m_color; // todo: delete this, color should be compute with all record member
 	Position3 m_hit_position;
-	Position3 m_hit_unit_normal;
+	Vector3 m_hit_unit_normal;
+
+	Material m_material;
 
 	double m_t = SimplePT::INF;
 
@@ -21,7 +24,7 @@ class HittableBase
 public:
 	HittableBase() {}
 	virtual ~HittableBase() = 0;
-	virtual bool HitHappened(const Ray& ray, double t_min, double t_max, HitRecord& hit_record) const = 0;
+	virtual bool HitHappened(const Ray& ray, HitRecord& out_hit_record, double t_min = SimplePT::EPSILON, double t_max = SimplePT::INF) const = 0;
 private:
 
 };

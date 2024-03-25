@@ -12,7 +12,7 @@ public:
 	virtual ~Scene() override;
 
 	void AddHittableObject(const std::shared_ptr<HittableBase>& actor);
-	virtual bool HitHappened(const Ray& ray, double t_min, double t_max, HitRecord& hit_record) const override;
+	virtual bool HitHappened(const Ray& ray, HitRecord& out_hit_record, double t_min = SimplePT::EPSILON, double t_max = SimplePT::INF) const override;
 
 private:
 	std::vector<std::shared_ptr<HittableBase>> m_actors;

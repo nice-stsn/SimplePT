@@ -3,6 +3,7 @@
 #include "MyMath.h"
 #include "Ray.h"
 #include "Color.h"
+#include "Material/Material.h"
 #include "stb_image_write.h"
 
 
@@ -41,21 +42,9 @@ void PathTracer::Render(int num_samples_per_pixel)
 			float g = (float)j / (float)height;
 			float b = 0.2f;
 			
-			Color3 pixel_color;
-
-			/* ray intersection: TODO */
+			Color3 pixel_color(0u, 0u, 0u);
 			Ray eye_ray = m_camera.CastRay(i, j); // generate ray from eye
-			HitRecord hit_record;
-
-			if (m_scene.HitHappened(eye_ray, SimplePT::EPSILON, SimplePT::INF, hit_record))
-			{
-				/* shading: TODO */
-				//Shade(hit_recor, pixel_colr);
-				pixel_color = hit_record.m_color;
-			}
-			else // background
-				pixel_color = Color3(r, g, b);
-
+			pixel_color += m_RayColor(eye_ray);
 
 			m_WritePixelColor(i, j, pixel_color);
 ///* get processing image for debuggging */
@@ -69,4 +58,41 @@ void PathTracer::Render(int num_samples_per_pixel)
 
 	//// You have to use 3 comp for complete jpg file. If not, the image will be grayscale or nothing.
 	//stbi_write_jpg("image/stbjpg3.jpg", width, height, 3, m_frame_buffer.get(), 100);
+}
+
+// recursive call
+// reference: https://agraphicsguynotes.com/posts/basics_about_path_tracing/
+// L(x1 -> x0) = Le(x1 -> x0)
+//					+ \int L(x2 -> x1) * f(x2 -> x1 -> x0) * cos1 * dw1 
+//	           = Le(x1 -> x0) 
+//					+ \int Le(x2 -> x1) * f(x2 -> x1 -> x0) * cos1 * dw1 
+//					+ \int (\int L(x3 -> x2) * f(x3 -> x2 -> x1) * cos2 * dw2) * f(x2 -> x1 -> x0) * cos1 * dw1
+Color3 PathTracer::m_RayColor(const Ray& ray) const
+{
+	HitRecord hit_record;
+	Color3 out_color;
+	
+	// miss
+	if (!m_scene.HitHappened(ray, hit_record))
+		return Color3(); // defualt color (black)
+
+	// debug: normal shading
+	Vector3 normal = hit_record.m_hit_unit_normal;
+	return Color3(std::abs(normal.m_x), std::abs(normal.m_y), std::abs(normal.m_z));
+
+	/* first term: Le(x1 -> x0) */
+	Color3 emit_color( hit_record.m_material.GetEmission());
+	out_color += emit_color;
+
+
+	/* second term: \int Le(x2 -> x1) * f(x2 -> x1 -> x0) * cos(\theta) dw */
+	// random_point_on_light = pdfAreaLight(); // uniform p = 1/A && 1/p = A
+	// dir = brdf * (n * w) * (n' * w') * light_emmit / R^2 / p; (integral on dA)
+
+
+	/* sampling exept light */
+	// random_wi_on_hemisphere = pdfHemisphere(); // uniform p = 1 / 4pi?? 1/p = 4pi??
+	// indir = brdf * (n * w) * m_RayColor(random_wi_on_hemisphere) / p  (integral on dwi)
+
+	return out_color;
 }
