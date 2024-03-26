@@ -15,6 +15,9 @@ struct HitRecord
 
 	Material m_material;
 
+	unsigned int dbg_face_id_dir;
+	unsigned int dbg_face_id_indir;
+
 	double m_t = SimplePT::INF;
 
 };

@@ -37,7 +37,7 @@ void BVHBase::BuildBVH()
 
 bool BVHBase::HitHappened(const Ray& ray, HitRecord& out_hit_record, double t_min, double t_max) const
 {
-	//// traverse BVH tree
+	// traverse BVH tree
 	return m_HitRecursive(m_root_index, ray, out_hit_record, t_min, t_max);
 }
 
@@ -117,6 +117,10 @@ bool BVHBase::m_HitRecursive(unsigned int node_index, const Ray& ray, HitRecord&
 	// if intersect with leaf node
 	if (node.m_IsLeaf()) {
 		// check  primitive
+		
+		// debug_info
+		out_hit_record.dbg_face_id_indir = node.m_start;
+		
 		return m_Primitive_HitHappend(indir2dir(node.m_start), ray, out_hit_record, t_min, t_max);
 	}
 

@@ -161,6 +161,10 @@ bool Mesh::Triangle_HitHappened(unsigned int tri_id, const Ray& ray, HitRecord& 
 		Vector3 avg_normal = ((v0.normal + v1.normal + v2.normal) / 3).Normalized();
 		out_hit_record.m_hit_unit_normal = avg_normal; // flat normal
 		out_hit_record.m_material = tri.tri_material;
+
+		// debug info
+		out_hit_record.dbg_face_id_dir = tri_id;
+
 		return true;
 	}
 

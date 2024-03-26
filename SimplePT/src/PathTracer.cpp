@@ -28,6 +28,8 @@ void PathTracer::Render(int num_samples_per_pixel)
 {
 	std::clog << "start rendering" << std::endl;
 	std::clog << "SPP = " << num_samples_per_pixel << std::endl;
+	int debug_pixel_x = 50;
+	int debug_pixel_y = 13;
 	
 	const int width = m_camera.GetWidth();
 	const int height = m_camera.GetHeight();
@@ -41,15 +43,26 @@ void PathTracer::Render(int num_samples_per_pixel)
 			float r = (float)i / (float)width;
 			float g = (float)j / (float)height;
 			float b = 0.2f;
+
+			/* debug: get processing image for debuggging */
+			if (i == debug_pixel_x && j == debug_pixel_y)
+			{
+				m_WritePixelColor(i, j, Color3(255u, 0u, 0u)); // red pixel
+				stbi_write_png("image/debug.png", width, height, CHANNEL_NUM, m_frame_buffer.get(), width * CHANNEL_NUM);
+			}
 			
 			Color3 pixel_color(0u, 0u, 0u);
 			Ray eye_ray = m_camera.CastRay(i, j); // generate ray from eye
 			pixel_color += m_RayColor(eye_ray);
 
 			m_WritePixelColor(i, j, pixel_color);
-///* get processing image for debuggging */
-//// if CHANNEL_NUM is 4, you can use alpha channel in png
-//stbi_write_png("image/debug.png", width, height, CHANNEL_NUM, m_frame_buffer.get(), width * CHANNEL_NUM);
+
+			///* debug: get processing image for debuggging */
+			//if (i == debug_pixel_x && j == debug_pixel_y)
+			//{
+			//	m_WritePixelColor(i, j, Color3(255u, 0u, 0u)); // red pixel
+			//	stbi_write_png("image/debug.png", width, height, CHANNEL_NUM, m_frame_buffer.get(), width * CHANNEL_NUM);
+			//}
 		}
 	}
 
@@ -76,16 +89,16 @@ Color3 PathTracer::m_RayColor(const Ray& ray) const
 	if (!m_scene.HitHappened(ray, hit_record))
 		return Color3(); // defualt color (black)
 
-	// debug: normal shading
-	Vector3 normal = hit_record.m_hit_unit_normal;
-	return Color3(std::abs(normal.m_x), std::abs(normal.m_y), std::abs(normal.m_z));
+	//// debug: normal shading
+	//Vector3 normal = hit_record.m_hit_unit_normal;
+	//return Color3(std::abs(normal.m_x), std::abs(normal.m_y), std::abs(normal.m_z));
 
-	///* first term: Le(x1 -> x0) */
-	//if (hit_record.m_material.HasEmission())
-	//{
-	//	Color3 emit_color(hit_record.m_material.GetEmission());
-	//	out_color += emit_color;
-	//}
+	/* first term: Le(x1 -> x0) */
+	if (hit_record.m_material.HasEmission())
+	{
+		Color3 emit_color(hit_record.m_material.GetEmission());
+		out_color += emit_color;
+	}
 
 	/* second term: \int le(x2 -> x1) * f(x2 -> x1 -> x0) * cos(\theta) dw */
 	// random_point_on_light = pdfarealight(); // uniform p = 1/a && 1/p = a
