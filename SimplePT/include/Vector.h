@@ -6,7 +6,7 @@
 class Vector3
 {
 public:
-	Vector3() = default;
+	Vector3() : m_x(0.0), m_y(0.0), m_z(0.0) {}
 	Vector3(double x, double y, double z) : m_x(x), m_y(y), m_z(z) {}
 	~Vector3() {}
 
@@ -63,6 +63,12 @@ public:
 		return Vector3(m_x * val, m_y * val, m_z * val);
 	}
 
+	inline Vector3  operator*(const Vector3& rhs)const
+	{
+		return Vector3(m_x * rhs.m_x, m_y * rhs.m_y, m_z * rhs.m_z);
+	}
+
+
 	inline Vector3  operator/(double val)const
 	{
 		if (val == 0.0f)
@@ -76,6 +82,11 @@ public:
 	{
 		double len = Length();
 		return Vector3(m_x / len, m_y / len, m_z / len);
+	}
+
+	inline double SquareLength() const
+	{
+		return m_x * m_x + m_y * m_y + m_z * m_z;
 	}
 
 	inline double Length() const

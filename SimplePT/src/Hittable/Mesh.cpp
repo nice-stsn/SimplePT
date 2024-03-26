@@ -159,6 +159,7 @@ bool Mesh::Triangle_HitHappened(unsigned int tri_id, const Ray& ray, HitRecord& 
 
 		// shading with normal
 		Vector3 avg_normal = ((v0.normal + v1.normal + v2.normal) / 3).Normalized();
+		out_hit_record.m_hit_position = ray.GetOrigin() + t_triangle * ray.GetDirection();
 		out_hit_record.m_hit_unit_normal = avg_normal; // flat normal
 		out_hit_record.m_material = tri.tri_material;
 

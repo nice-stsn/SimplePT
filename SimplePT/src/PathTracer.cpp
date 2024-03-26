@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include "PathTracer.h"
 #include "MyMath.h"
 #include "Ray.h"
@@ -7,6 +8,11 @@
 #include "stb_image_write.h"
 
 
+inline bool PathTracer::m_WritePixelRadiance(unsigned int x_id, unsigned int y_id, const Vector3& radiance)
+{
+	Color3 pixel_color(radiance.m_x, radiance.m_y, radiance.m_z);
+	return m_WritePixelColor(x_id, y_id, pixel_color);
+}
 
 inline bool PathTracer::m_WritePixelColor(unsigned int x_id, unsigned int y_id, const Color3& col)
 {
@@ -29,7 +35,8 @@ void PathTracer::Render(int num_samples_per_pixel)
 	std::clog << "start rendering" << std::endl;
 	std::clog << "SPP = " << num_samples_per_pixel << std::endl;
 	int debug_pixel_x = 50;
-	int debug_pixel_y = 13;
+	int debug_pixel_y = 50;
+	//int debug_pixel_y = 13;
 	
 	const int width = m_camera.GetWidth();
 	const int height = m_camera.GetHeight();
@@ -40,22 +47,20 @@ void PathTracer::Render(int num_samples_per_pixel)
 		std::clog << "\rline: " << j << '/' << height - 1 ;
 		for (int i = 0; i < width; ++i)
 		{
-			float r = (float)i / (float)width;
-			float g = (float)j / (float)height;
-			float b = 0.2f;
-
 			/* debug: get processing image for debuggging */
 			if (i == debug_pixel_x && j == debug_pixel_y)
 			{
 				m_WritePixelColor(i, j, Color3(255u, 0u, 0u)); // red pixel
 				stbi_write_png("image/debug.png", width, height, CHANNEL_NUM, m_frame_buffer.get(), width * CHANNEL_NUM);
 			}
-			
-			Color3 pixel_color(0u, 0u, 0u);
-			Ray eye_ray = m_camera.CastRay(i, j); // generate ray from eye
-			pixel_color += m_RayColor(eye_ray);
 
-			m_WritePixelColor(i, j, pixel_color);
+			Vector3 pixel_color_radiance(0.0, 0.0, 0.0);
+			for (int sppcnt = 0; sppcnt < num_samples_per_pixel; ++sppcnt)
+			{
+				Ray eye_ray = m_camera.CastRay(i, j); // generate ray from eye
+				pixel_color_radiance +=  m_RayRadiance(eye_ray) / num_samples_per_pixel;
+			}
+			m_WritePixelRadiance(i, j, pixel_color_radiance);
 
 			///* debug: get processing image for debuggging */
 			//if (i == debug_pixel_x && j == debug_pixel_y)
@@ -80,34 +85,89 @@ void PathTracer::Render(int num_samples_per_pixel)
 //	           = Le(x1 -> x0) 
 //					+ \int Le(x2 -> x1) * f(x2 -> x1 -> x0) * cos1 * dw1 
 //					+ \int (\int L(x3 -> x2) * f(x3 -> x2 -> x1) * cos2 * dw2) * f(x2 -> x1 -> x0) * cos1 * dw1
-Color3 PathTracer::m_RayColor(const Ray& ray) const
+Vector3 PathTracer::m_RayRadiance(const Ray& ray) const
 {
 	HitRecord hit_record;
-	Color3 out_color;
-	
+	Vector3 out_radiance;
+
 	// miss
 	if (!m_scene.HitHappened(ray, hit_record))
-		return Color3(); // defualt color (black)
+		return Vector3(); // defualt radiance (black)
 
 	//// debug: normal shading
 	//Vector3 normal = hit_record.m_hit_unit_normal;
-	//return Color3(std::abs(normal.m_x), std::abs(normal.m_y), std::abs(normal.m_z));
+	//return Vector3(std::abs(normal.m_x), std::abs(normal.m_y), std::abs(normal.m_z));
 
 	/* first term: Le(x1 -> x0) */
 	if (hit_record.m_material.HasEmission())
 	{
-		Color3 emit_color(hit_record.m_material.GetEmission());
-		out_color += emit_color;
+		Vector3 emit_radiance(hit_record.m_material.GetEmission());
+		out_radiance += emit_radiance;
+		return out_radiance; // eye ray hit light
 	}
 
 	/* second term: \int le(x2 -> x1) * f(x2 -> x1 -> x0) * cos(\theta) dw */
-	// random_point_on_light = pdfarealight(); // uniform p = 1/a && 1/p = a
+	// random_point_on_light = PdfAreaLight(); // uniform p = 1/a && 1/p = a
 	// dir = brdf * (n * w) * (n' * w') * light_emmit / r ^ 2 / p; (integral on da)
+	Vector3 direct_illum_radiance;
+	double pdf_all_light;
+	HitRecord light_surface_info;
+	m_scene.SampleLight(light_surface_info, pdf_all_light);
+	Vector3 obj2light = light_surface_info.m_hit_position - hit_record.m_hit_position;
+	// check if light is blocked
+	HitRecord block_rec;
+	m_scene.HitHappened(Ray(hit_record.m_hit_position, obj2light), block_rec);
 
+	Vector3 blocked_offset = block_rec.m_hit_position - hit_record.m_hit_position;
+
+	if (SimplePT::EqualApprox(blocked_offset.Length(), obj2light.Length()))
+	{
+		//Vector3 f_r = hit_record.m_material->Eval(...);
+		Vector3 f_r(0.5, 0.5, 0.5);
+		double r2 = obj2light.SquareLength();
+		double cosA = std::max(0.0, DotProduct(hit_record.m_hit_unit_normal, obj2light.Normalized()));
+		double cosB = std::max(0.0, DotProduct(light_surface_info.m_hit_unit_normal, -obj2light.Normalized()));
+		//direct_illum_radiance = Vector3(light_surface_info.m_material.GetEmission() * f_r * cosA * cosB / r2 / pdf_all_light);
+		direct_illum_radiance = light_surface_info.m_material.GetEmission() * cosA * cosB;
+		//direct_illum_radiance = Vector3(light_surface_info.m_material.GetEmission() * cosA);
+		out_radiance += direct_illum_radiance;
+	}
 
 	/* sampling exept light */
-	// random_wi_on_hemisphere = pdfHemisphere(); // uniform p = 1 / 4pi?? 1/p = 4pi??
-	// indir = brdf * (n * w) * m_RayColor(random_wi_on_hemisphere) / p  (integral on dwi)
+	// random_wi_on_hemisphere = PdfHemisphere(); // uniform p = 1 / 4pi?? 1/p = 4pi??
+	// indir = brdf * (n * w) * m_RayRadiance(random_wi_on_hemisphere) / p  (integral on dwi)
+	Vector3 indirect_illum_radiance;
+	double RR = 0.8;
+	if (SimplePT::GetRandomDouble_0_to_1() < RR)
+	{
+		// random on sphere, not hemisphere
+		double rand_x = SimplePT::GetRandomDouble_0_to_1();
+		double rand_y = SimplePT::GetRandomDouble_0_to_1();
+		double rand_z = SimplePT::GetRandomDouble_0_to_1();
 
-	return out_color;
+		Vector3 dir2next_obj(rand_x, rand_y, rand_z);
+
+		// hemisphere
+		if (DotProduct(dir2next_obj, hit_record.m_hit_unit_normal) < 0)
+		{
+			dir2next_obj = (-dir2next_obj);
+		}
+
+		HitRecord next_obj_rec;
+		if (m_scene.HitHappened(Ray(hit_record.m_hit_position, dir2next_obj), next_obj_rec))
+		{
+			if (!next_obj_rec.m_material.HasEmission())
+			{
+				Vector3 f_r(0.5, 0.5, 0.5); // brdf
+
+				double cos = std::max(0.0, DotProduct(dir2next_obj.Normalized(), hit_record.m_hit_unit_normal));
+				indirect_illum_radiance = m_RayRadiance(Ray(hit_record.m_hit_position, dir2next_obj)) * f_r * cos;
+				out_radiance += indirect_illum_radiance;
+			}
+		}
+
+	}
+
+	return out_radiance;
 }
+

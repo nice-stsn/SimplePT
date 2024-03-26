@@ -16,6 +16,9 @@ int main() {
 	//unsigned int height = 1024;
 	unsigned int width = 102;
 	unsigned int height = 102;
+	//unsigned int width = 10;
+	//unsigned int height = 10;
+
 
 	//// veach-mis.xml
 	//Position3 eye(28.2792, 5.2, 1.23612e-06);
@@ -51,7 +54,7 @@ int main() {
 	//my_scen.BuildBVH(); // todo
 	PathTracer my_path_tracer(my_scn, my_cam);
 
-	my_path_tracer.Render();
+	my_path_tracer.Render(1);
 
 	return 0;
 }
