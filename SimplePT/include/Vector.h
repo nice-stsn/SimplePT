@@ -83,6 +83,22 @@ public:
 		return std::sqrt(m_x * m_x + m_y * m_y + m_z * m_z);
 	}
 
+	inline double& operator[](int index) 
+	{
+		if (index == 0) return m_x;
+		if (index == 1) return m_y;
+		if (index == 2) return m_z;
+		return m_x;
+	}
+
+	inline const double& operator[](int index) const
+	{
+		if (index == 0) return m_x;
+		if (index == 1) return m_y;
+		if (index == 2) return m_z;
+		return m_x;
+	}
+
 	double m_x, m_y, m_z;
 };
 

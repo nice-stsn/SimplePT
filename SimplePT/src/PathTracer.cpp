@@ -76,16 +76,16 @@ Color3 PathTracer::m_RayColor(const Ray& ray) const
 	if (!m_scene.HitHappened(ray, hit_record))
 		return Color3(); // defualt color (black)
 
-	//// debug: normal shading
-	//Vector3 normal = hit_record.m_hit_unit_normal;
-	//return Color3(std::abs(normal.m_x), std::abs(normal.m_y), std::abs(normal.m_z));
+	// debug: normal shading
+	Vector3 normal = hit_record.m_hit_unit_normal;
+	return Color3(std::abs(normal.m_x), std::abs(normal.m_y), std::abs(normal.m_z));
 
-	/* first term: Le(x1 -> x0) */
-	if (hit_record.m_material.HasEmission())
-	{
-		Color3 emit_color(hit_record.m_material.GetEmission());
-		out_color += emit_color;
-	}
+	///* first term: Le(x1 -> x0) */
+	//if (hit_record.m_material.HasEmission())
+	//{
+	//	Color3 emit_color(hit_record.m_material.GetEmission());
+	//	out_color += emit_color;
+	//}
 
 	/* second term: \int le(x2 -> x1) * f(x2 -> x1 -> x0) * cos(\theta) dw */
 	// random_point_on_light = pdfarealight(); // uniform p = 1/a && 1/p = a

@@ -1,3 +1,4 @@
+#include "Hittable/MeshBVH.h"
 #include "Hittable/Mesh.h"
 #include "MyMath.h"
 #include "tiny_obj_loader.h"
@@ -51,8 +52,16 @@ Mesh::Mesh(const std::string& filename, const std::string& mtl_basepath, const s
 		m_num_tris += static_cast<unsigned int>(m_shapes[i].mesh.num_face_vertices.size());
 	}
 
+	// build bvh
+	assert(m_shapes.size() == 1);
+	m_ptr_bvh = new MeshBVH(this);
+	m_ptr_bvh->BuildBVH();
 }
 
+Mesh::~Mesh()
+{
+	delete m_ptr_bvh;
+}
 
 void Mesh::m_GetFaceInfo(unsigned int f_id, Triangle_info& out_tri) const
 {
@@ -91,36 +100,71 @@ void Mesh::m_GetVertex(const tinyobj::index_t& v_id, VertexAttribs& out_vertex) 
 
 bool Mesh::HitHappened(const Ray& ray, HitRecord& out_hit_record, double t_min, double t_max) const 
 {
-	// bf: iterate over all triangles
-	// todo: bvh
-	// for scnen in 'example-scenes-cg23', shape.size() == 1
-	assert(m_shapes.size() == 1);
-
-	bool b_hit_happened = false;
-	for (unsigned int i = 0; i < m_num_tris; ++i)
+	// bvh
+	if (m_ptr_bvh)
+		return m_ptr_bvh->HitHappened(ray, out_hit_record, t_min, t_max);
+	else
 	{
-		Triangle_info tri;
-		m_GetFaceInfo(i, tri);
-
-		VertexAttribs v0, v1, v2;
-		m_GetVertex(tri.vid0, v0);
-		m_GetVertex(tri.vid1, v1);
-		m_GetVertex(tri.vid2, v2);
-
-		double t_triangle = -1;
-		if (m_HitTriangle(ray, v0.position, v1.position, v2.position, t_triangle) && t_triangle > t_min && t_triangle < t_max && t_triangle < out_hit_record.m_t)
-		{
-			out_hit_record.m_t = t_triangle; // record smaller
-			b_hit_happened = true;
-
-			// shading with normal
-			Vector3 avg_normal = ((v0.normal + v1.normal + v2.normal) / 3).Normalized();
-			out_hit_record.m_hit_unit_normal = avg_normal; // flat normal
-			out_hit_record.m_material = tri.tri_material;
-		}
+		std::clog << "BVH of mesh is not built." << std::endl;
+		return false;
 	}
 
-	return b_hit_happened;
+	// bf: iterate over all triangles
+	//{
+	//	// for scnen in 'example-scenes-cg23', shape.size() == 1
+	//	assert(m_shapes.size() == 1);
+
+	//	bool b_hit_happened = false;
+	//	for (unsigned int i = 0; i < m_num_tris; ++i)
+	//	{
+	//		Triangle_info tri;
+	//		m_GetFaceInfo(i, tri);
+
+	//		VertexAttribs v0, v1, v2;
+	//		m_GetVertex(tri.vid0, v0);
+	//		m_GetVertex(tri.vid1, v1);
+	//		m_GetVertex(tri.vid2, v2);
+
+	//		double t_triangle = -1;
+	//		if (m_HitTriangle(ray, v0.position, v1.position, v2.position, t_triangle) && t_triangle > t_min && t_triangle < t_max && t_triangle < out_hit_record.m_t)
+	//		{
+	//			out_hit_record.m_t = t_triangle; // record smaller
+	//			b_hit_happened = true;
+
+	//			// shading with normal
+	//			Vector3 avg_normal = ((v0.normal + v1.normal + v2.normal) / 3).Normalized();
+	//			out_hit_record.m_hit_unit_normal = avg_normal; // flat normal
+	//			out_hit_record.m_material = tri.tri_material;
+	//		}
+	//	}
+
+	//	return b_hit_happened;
+	//}
+}
+
+bool Mesh::Triangle_HitHappened(unsigned int tri_id, const Ray& ray, HitRecord& out_hit_record, double t_min, double t_max) const
+{
+	Triangle_info tri;
+	m_GetFaceInfo(tri_id, tri);
+
+	VertexAttribs v0, v1, v2;
+	m_GetVertex(tri.vid0, v0);
+	m_GetVertex(tri.vid1, v1);
+	m_GetVertex(tri.vid2, v2);
+
+	double t_triangle = -1;
+	if (m_HitTriangle(ray, v0.position, v1.position, v2.position, t_triangle) && t_triangle > t_min && t_triangle < t_max)
+	{
+		out_hit_record.m_t = t_triangle; // record smaller
+
+		// shading with normal
+		Vector3 avg_normal = ((v0.normal + v1.normal + v2.normal) / 3).Normalized();
+		out_hit_record.m_hit_unit_normal = avg_normal; // flat normal
+		out_hit_record.m_material = tri.tri_material;
+		return true;
+	}
+
+	return false;
 }
 
 bool Mesh::m_HitTriangle(const Ray& ray, const Position3& v0, const Position3& v1, const Position3& v2, double& t_out) const
@@ -155,3 +199,32 @@ bool Mesh::m_HitTriangle(const Ray& ray, const Position3& v0, const Position3& v
 	return false;
 
 }
+
+Vector3 Mesh::GetTriCenter(unsigned int tri_index) const
+{
+	Triangle_info tri;
+	m_GetFaceInfo(tri_index, tri);
+
+	VertexAttribs v0, v1, v2;
+	m_GetVertex(tri.vid0, v0);
+	m_GetVertex(tri.vid1, v1);
+	m_GetVertex(tri.vid2, v2);
+
+	return (v0.position + v1.position + v2.position) * 0.3333333;
+}
+
+
+void Mesh::GetVertexsPosition(unsigned int f_id, Position3& v0, Position3& v1, Position3& v2) const
+{
+	Triangle_info tri;
+	m_GetFaceInfo(f_id, tri);
+	VertexAttribs va0, va1, va2;
+	m_GetVertex(tri.vid0, va0);
+	m_GetVertex(tri.vid1, va1);
+	m_GetVertex(tri.vid2, va2);
+	v0 = va0.position;
+	v1 = va1.position;
+	v2 = va2.position;
+}
+
+

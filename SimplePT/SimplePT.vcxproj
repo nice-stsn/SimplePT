@@ -131,7 +131,9 @@
   <ItemGroup>
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\Hittable.cpp" />
+    <ClCompile Include="src\Hittable\BVHBase.cpp" />
     <ClCompile Include="src\Hittable\Mesh.cpp" />
+    <ClCompile Include="src\Hittable\MeshBVH.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Material.cpp" />
     <ClCompile Include="src\MyMath.cpp" />
@@ -144,8 +146,10 @@
   <ItemGroup>
     <ClInclude Include="include\Camera.h" />
     <ClInclude Include="include\Color.h" />
+    <ClInclude Include="include\Hittable\BVHBase.h" />
     <ClInclude Include="include\Hittable\Hittable.h" />
     <ClInclude Include="include\Hittable\Mesh.h" />
+    <ClInclude Include="include\Hittable\MeshBVH.h" />
     <ClInclude Include="include\Hittable\Sphere.h" />
     <ClInclude Include="include\Hittable\Triangle.h" />
     <ClInclude Include="include\Material\Material.h" />
