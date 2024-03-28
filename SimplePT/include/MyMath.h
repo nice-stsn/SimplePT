@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <random>
+#include "Vector.h"
 
 namespace SimplePT {
 	extern const double PI;
@@ -37,5 +38,7 @@ namespace SimplePT {
 	inline double GetRandomDouble_min_to_max(double min, double max) {
 		return min + (max - min) * GetRandomDouble_0_to_1();
 	}
+
+	void Sample_Hemisphere_Uniform(const Vector3& input_normal, Vector3& output_wi, double& output_pdf_of_wi);
 
 }
