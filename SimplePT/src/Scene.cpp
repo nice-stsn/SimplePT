@@ -1,5 +1,6 @@
 #include "Scene.h"
 #include "MyMath.h"
+#include <cassert>
 
 
 Scene::~Scene()
@@ -29,6 +30,10 @@ bool Scene::HitHappened(const Ray& ray, HitRecord& out_hit_record, double t_min,
 
 void Scene::SampleLight(HitRecord& sample_info, double& pdf) const
 {
+	// assert only one mesh actor in scene
+	assert(m_actors.size() == 1);
+
+	//m_actors[0].SampleLight(sample_info, pdf);
 	// todo
 	//pdf = SimplePT::GetRandomDouble_0_to_1();
 	pdf = 0.5;

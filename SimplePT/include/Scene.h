@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 
+
 class Scene : public HittableBase
 {
 public:

@@ -3,6 +3,7 @@
 #include "Hittable/Hittable.h"
 #include "Material/Material.h"
 #include "tiny_obj_loader.h"
+#include "Light.h"
 #include <memory>
 
 struct VertexAttribs
@@ -25,7 +26,7 @@ class Mesh : public HittableBase
 {
 public:
 	Mesh() = default;
-	Mesh(const std::string& filename, const std::string& mtl_basepath, const std::string& light_mtl_name, const Vector3& light_radiance);  
+	Mesh(const std::string& filename, const std::string& mtl_basepath, const std::vector<LightInfo>& lights_info);  
 	virtual ~Mesh();
 	virtual bool HitHappened(const Ray& ray, HitRecord& out_hit_record, double t_min = SimplePT::EPSILON, double t_max = SimplePT::INF) const override;
 	bool Triangle_HitHappened(unsigned int tri_id, const Ray& ray, HitRecord& out_hit_record, double t_min = SimplePT::EPSILON, double t_max = SimplePT::INF) const;
@@ -35,8 +36,7 @@ public:
 	void GetVertexsPosition(unsigned int f_id, Position3& v0, Position3& v1, Position3& v2) const;
 
 private:
-	std::string m_light_mtlname;
-	Vector3 m_radiance;
+	std::vector<LightInfo> m_lights_info;
 
 	tinyobj::attrib_t m_attrib;
 	std::vector<tinyobj::shape_t> m_shapes; // hittables with mesh

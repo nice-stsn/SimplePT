@@ -6,8 +6,9 @@
 #include <iostream>
 #include <cassert>
 
-Mesh::Mesh(const std::string& filename, const std::string& mtl_basepath, const std::string& light_mtl_name, const Vector3& light_radiance)
-	: m_light_mtlname(light_mtl_name), m_radiance(light_radiance)
+Mesh::Mesh(const std::string& filename, const std::string& mtl_basepath, 
+	const std::vector<LightInfo>& lights_info)
+	: m_lights_info(std::move(lights_info))
 {
 	// use tiny_obj_loader: https://github.com/tinyobjloader/tinyobjloader/blob/release/loader_example.cc
 	bool triangulate = true; // how do i know? todo.
@@ -38,11 +39,14 @@ Mesh::Mesh(const std::string& filename, const std::string& mtl_basepath, const s
 	// set light materials
 	for (auto& material : m_materials)
 	{
-		if (material.name == m_light_mtlname)
+		for (auto& light_info : m_lights_info)
 		{
-			material.emission[0] = static_cast<tinyobj::real_t>(m_radiance.m_x);
-			material.emission[1] = static_cast<tinyobj::real_t>(m_radiance.m_y);
-			material.emission[2] = static_cast<tinyobj::real_t>(m_radiance.m_z);
+			if (material.name == light_info.m_light_mtl_name)
+			{
+				material.emission[0] = static_cast<tinyobj::real_t>(light_info.m_radiance.m_x);
+				material.emission[1] = static_cast<tinyobj::real_t>(light_info.m_radiance.m_y);
+				material.emission[2] = static_cast<tinyobj::real_t>(light_info.m_radiance.m_z);
+			}
 		}
 	}
 
