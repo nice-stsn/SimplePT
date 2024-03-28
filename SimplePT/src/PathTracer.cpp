@@ -125,8 +125,9 @@ Vector3 PathTracer::m_RayRadiance(const Ray& ray) const
 	m_scene.HitHappened(Ray(hit_record.m_hit_position, obj2light), block_rec);
 
 	//Vector3 BRDF = hit_record.m_material->Eval(...);
-	Vector3 kd(0.79, 0.76, 0.73); // temp diffuse white
-	Vector3 BRDF_diffuse_white = kd / SimplePT::PI; // temp diffuse white
+	//Vector3 kd(0.79, 0.76, 0.73); // temp diffuse white
+	Vector3 kd = hit_record.m_material.GetKd(); // temp diffuse white
+	Vector3 BRDF = kd / SimplePT::PI; // temp diffuse white
 
 	Vector3 blocked_offset = block_rec.m_hit_position - hit_record.m_hit_position;
 
@@ -135,18 +136,16 @@ Vector3 PathTracer::m_RayRadiance(const Ray& ray) const
 		double r2 = obj2light.SquareLength();
 		double cosi = std::max(0.0, DotProduct(hit_record.m_hit_unit_normal, obj2light.Normalized()));
 		double cosl = std::max(0.0, DotProduct(light_surface_info.m_hit_unit_normal, -obj2light.Normalized()));
-		direct_illum_radiance = light_surface_info.m_material.GetEmission() * BRDF_diffuse_white  * cosi * cosl / r2 / pdf_all_light;
+		direct_illum_radiance = light_surface_info.m_material.GetEmission() * BRDF  * cosi * cosl / r2 / pdf_all_light;
 		out_radiance += direct_illum_radiance;
 	}
 
 	/* sampling exept light */
-	// random_wi_on_hemisphere = PdfHemisphere(); // uniform p = 1 / 2pi 1/p = 2pi
 	// indir = brdf * (n * w) * m_RayRadiance(random_wi_on_hemisphere) / p  (integral on dwi)
 	Vector3 indirect_illum_radiance;
 	double RR = 0.8;
 	if (SimplePT::GetRandomDouble_0_to_1() < RR)
 	{
-		//Sample_Hemisphere_Cos_Weighted : todo
 		Vector3 wi;
 		double pdf_of_wi = -1.0;
 		//SimplePT::Sample_Hemisphere_Uniform(hit_record.m_hit_unit_normal, wi, pdf_of_wi);
@@ -158,8 +157,6 @@ Vector3 PathTracer::m_RayRadiance(const Ray& ray) const
 		if (m_scene.HitHappened(ray_wi, next_obj_rec)
 			&& !next_obj_rec.m_material.HasEmission())
 		{
-			Vector3 BRDF = BRDF_diffuse_white;
-
 			double cosi = std::max(0.0, DotProduct(hit_record.m_hit_unit_normal, wi));
 			indirect_illum_radiance = m_RayRadiance(ray_wi) * BRDF * cosi / pdf_of_wi / RR;
 			out_radiance += indirect_illum_radiance;

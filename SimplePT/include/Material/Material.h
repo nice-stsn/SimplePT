@@ -12,6 +12,7 @@ public:
 	~Material() {}
 	inline bool HasEmission() const { return m_has_emission;  }
 	inline Vector3 GetEmission() const { return m_emission; }
+	inline Vector3 GetKd() const { return m_kd; }
 
 private:
 	bool m_has_emission = false;
