@@ -47,7 +47,7 @@ void PathTracer::Render(int num_samples_per_pixel)
 	for (int j = 0; j < height; ++j)
 	{
 		if (linecnt % 50 == 1)
-			std::clog << "\rline: " << linecnt << '/' << height - 1 << "     " << std::flush;
+			std::clog << "\rline: " << linecnt << '/' << height - 1 << "     " << std::endl;
 		for (int i = 0; i < width; ++i)
 		{
 			/* debug: get processing image for debuggging */
@@ -127,51 +127,51 @@ Vector3 PathTracer::m_RayRadiance(const Ray& ray) const
 
 	if (SimplePT::EqualApprox(blocked_offset.Length(), obj2light.Length()))
 	{
-		//Vector3 f_r = hit_record.m_material->Eval(...);
-		Vector3 f_r(0.5, 0.5, 0.5);
+		//Vector3 BRDF = hit_record.m_material->Eval(...);
+		Vector3 BRDF(0.79, 0.76, 0.73); // temp diffuse white
 		double r2 = obj2light.SquareLength();
-		double cosA = std::max(0.0, DotProduct(hit_record.m_hit_unit_normal, obj2light.Normalized()));
-		double cosB = std::max(0.0, DotProduct(light_surface_info.m_hit_unit_normal, -obj2light.Normalized()));
+		double cosi = std::max(0.0, DotProduct(hit_record.m_hit_unit_normal, obj2light.Normalized()));
+		double cosl = std::max(0.0, DotProduct(light_surface_info.m_hit_unit_normal, -obj2light.Normalized()));
 		//direct_illum_radiance = Vector3(light_surface_info.m_material.GetEmission() * f_r * cosA * cosB / r2 / pdf_all_light);
-		direct_illum_radiance = light_surface_info.m_material.GetEmission() * cosA * cosB;
+		direct_illum_radiance = light_surface_info.m_material.GetEmission() * cosi * cosl / pdf_all_light / r2;
 		//direct_illum_radiance = Vector3(light_surface_info.m_material.GetEmission() * cosA);
 		out_radiance += direct_illum_radiance;
 	}
 
-	/* sampling exept light */
-	// random_wi_on_hemisphere = PdfHemisphere(); // uniform p = 1 / 4pi?? 1/p = 4pi??
-	// indir = brdf * (n * w) * m_RayRadiance(random_wi_on_hemisphere) / p  (integral on dwi)
-	Vector3 indirect_illum_radiance;
-	double RR = 0.8;
-	if (SimplePT::GetRandomDouble_0_to_1() < RR)
-	{
-		// random on sphere, not hemisphere
-		double rand_x = SimplePT::GetRandomDouble_0_to_1();
-		double rand_y = SimplePT::GetRandomDouble_0_to_1();
-		double rand_z = SimplePT::GetRandomDouble_0_to_1();
+	///* sampling exept light */
+	//// random_wi_on_hemisphere = PdfHemisphere(); // uniform p = 1 / 4pi?? 1/p = 4pi??
+	//// indir = brdf * (n * w) * m_RayRadiance(random_wi_on_hemisphere) / p  (integral on dwi)
+	//Vector3 indirect_illum_radiance;
+	//double RR = 0.8;
+	//if (SimplePT::GetRandomDouble_0_to_1() < RR)
+	//{
+	//	// random on sphere, not hemisphere
+	//	double rand_x = SimplePT::GetRandomDouble_0_to_1();
+	//	double rand_y = SimplePT::GetRandomDouble_0_to_1();
+	//	double rand_z = SimplePT::GetRandomDouble_0_to_1();
 
-		Vector3 dir2next_obj(rand_x, rand_y, rand_z);
+	//	Vector3 dir2next_obj(rand_x, rand_y, rand_z);
 
-		// hemisphere
-		if (DotProduct(dir2next_obj, hit_record.m_hit_unit_normal) < 0)
-		{
-			dir2next_obj = (-dir2next_obj);
-		}
+	//	// hemisphere
+	//	if (DotProduct(dir2next_obj, hit_record.m_hit_unit_normal) < 0)
+	//	{
+	//		dir2next_obj = (-dir2next_obj);
+	//	}
 
-		HitRecord next_obj_rec;
-		if (m_scene.HitHappened(Ray(hit_record.m_hit_position, dir2next_obj), next_obj_rec))
-		{
-			if (!next_obj_rec.m_material.HasEmission())
-			{
-				Vector3 f_r(0.5, 0.5, 0.5); // brdf
+	//	HitRecord next_obj_rec;
+	//	if (m_scene.HitHappened(Ray(hit_record.m_hit_position, dir2next_obj), next_obj_rec))
+	//	{
+	//		if (!next_obj_rec.m_material.HasEmission())
+	//		{
+	//			Vector3 f_r(0.5, 0.5, 0.5); // brdf
 
-				double cos = std::max(0.0, DotProduct(dir2next_obj.Normalized(), hit_record.m_hit_unit_normal));
-				indirect_illum_radiance = m_RayRadiance(Ray(hit_record.m_hit_position, dir2next_obj)) * f_r * cos;
-				out_radiance += indirect_illum_radiance;
-			}
-		}
+	//			double cos = std::max(0.0, DotProduct(dir2next_obj.Normalized(), hit_record.m_hit_unit_normal));
+	//			indirect_illum_radiance = m_RayRadiance(Ray(hit_record.m_hit_position, dir2next_obj)) * f_r * cos;
+	//			out_radiance += indirect_illum_radiance;
+	//		}
+	//	}
 
-	}
+	//}
 
 	return out_radiance;
 }

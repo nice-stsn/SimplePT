@@ -1,8 +1,11 @@
 #include "XmlLoader.h"
 #include "tinyxml2.h"
+#include "Light.h"
 
 
-bool loadXmlFile(const std::string& filePath,
+
+bool loadXmlFile(
+    const std::string& filePath,
     std::vector<LightInfo>& lights_info,
     Position3& eye,
     Position3& lookat,

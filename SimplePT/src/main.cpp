@@ -23,7 +23,7 @@ int main() {
 	Position3 eye;
 	Position3 lookat;
 	Vector3 up;
-	double fovy;
+	double fovy = 0;
 	unsigned int width = 0;
 	unsigned int height = 0;
 	loadXmlFile(xml_filename, lights_info, eye, lookat, up, fovy, width, height);
@@ -38,7 +38,7 @@ int main() {
 
 	/* set path tracer */
 	PathTracer my_path_tracer(my_scn, my_cam);
-	my_path_tracer.Render(10);
+	my_path_tracer.Render(1);
 
 	return 0;
 }

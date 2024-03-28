@@ -1,9 +1,11 @@
 #pragma once
-#include "Vector.h"
 #include <string>
-#include "Light.h"
+#include <vector>
+#include "Vector.h"
 
-bool loadXmlFile(const std::string& filePath,
+struct LightInfo;
+bool loadXmlFile(
+	const std::string& filePath,
 	std::vector<LightInfo>& lights_info,
 	Position3& eye,
 	Position3& lookat,
