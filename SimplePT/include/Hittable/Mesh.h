@@ -40,7 +40,7 @@ private:
 
 	tinyobj::attrib_t m_attrib;
 	std::vector<tinyobj::shape_t> m_shapes; // hittables with mesh
-	std::vector<tinyobj::material_t> m_materials; // todo
+	std::vector<tinyobj::material_t> m_materials; 
 	MeshBVH* m_ptr_bvh = nullptr;
 
 	bool m_HitTriangle(const Ray& ray, const Position3& v0, const Position3& v1, const Position3& v2, double& t) const;

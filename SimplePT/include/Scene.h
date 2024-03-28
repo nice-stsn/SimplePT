@@ -20,7 +20,7 @@ public:
 private:
 	std::vector<std::shared_ptr<HittableBase>> m_actors;
 
-	// todo: bvh
+	// todo: scene bvh
 
 };
 
