@@ -128,12 +128,13 @@ Vector3 PathTracer::m_RayRadiance(const Ray& ray) const
 	if (SimplePT::EqualApprox(blocked_offset.Length(), obj2light.Length()))
 	{
 		//Vector3 BRDF = hit_record.m_material->Eval(...);
-		Vector3 BRDF(0.79, 0.76, 0.73); // temp diffuse white
+		Vector3 kd(0.79, 0.76, 0.73); // temp diffuse white
+		Vector3 BRDF_diffuse_white = kd / SimplePT::PI ; // temp diffuse white
 		double r2 = obj2light.SquareLength();
 		double cosi = std::max(0.0, DotProduct(hit_record.m_hit_unit_normal, obj2light.Normalized()));
 		double cosl = std::max(0.0, DotProduct(light_surface_info.m_hit_unit_normal, -obj2light.Normalized()));
 		//direct_illum_radiance = Vector3(light_surface_info.m_material.GetEmission() * f_r * cosA * cosB / r2 / pdf_all_light);
-		direct_illum_radiance = light_surface_info.m_material.GetEmission() * cosi * cosl / pdf_all_light / r2;
+		direct_illum_radiance = light_surface_info.m_material.GetEmission() * BRDF_diffuse_white  * cosi * cosl / r2 / pdf_all_light;
 		//direct_illum_radiance = Vector3(light_surface_info.m_material.GetEmission() * cosA);
 		out_radiance += direct_illum_radiance;
 	}
