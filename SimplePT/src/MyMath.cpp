@@ -35,4 +35,24 @@ namespace SimplePT
 		output_wi = wi;
 		output_pdf_of_wi = 1 / (2 * PI);
 	}
+
+		
+	void Sample_Hemisphere_Cos_Weighted(const Vector3& input_normal, Vector3& output_wi, double& output_pdf_of_wi)
+	{
+		double u1 = GetRandomDouble_0_to_1();
+		double u2 = GetRandomDouble_0_to_1();
+		double phi = 2 * PI * u2;
+		double theta = 0.5 * std::acos(1 - 2 * u1);
+		double z = std::cos(theta);
+		double sin_theta = 1 - z * z;
+		double x = sin_theta * std::cos(phi);
+		double y = sin_theta * std::sin(phi);
+
+		Vector3 wi(x, y, z);
+		wi = ToWorld(input_normal, wi);
+
+		output_wi = wi;
+		output_pdf_of_wi = z / PI ;
+	}
+
 }

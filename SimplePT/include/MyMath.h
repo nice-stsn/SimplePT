@@ -40,5 +40,6 @@ namespace SimplePT {
 	}
 
 	void Sample_Hemisphere_Uniform(const Vector3& input_normal, Vector3& output_wi, double& output_pdf_of_wi);
+	void Sample_Hemisphere_Cos_Weighted(const Vector3& input_normal, Vector3& output_wi, double& output_pdf_of_wi);
 
 }

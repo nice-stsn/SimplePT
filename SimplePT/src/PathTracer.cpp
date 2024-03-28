@@ -146,11 +146,11 @@ Vector3 PathTracer::m_RayRadiance(const Ray& ray) const
 	double RR = 0.8;
 	if (SimplePT::GetRandomDouble_0_to_1() < RR)
 	{
-
 		//Sample_Hemisphere_Cos_Weighted : todo
 		Vector3 wi;
 		double pdf_of_wi = -1.0;
-		SimplePT::Sample_Hemisphere_Uniform(hit_record.m_hit_unit_normal, wi, pdf_of_wi);
+		//SimplePT::Sample_Hemisphere_Uniform(hit_record.m_hit_unit_normal, wi, pdf_of_wi);
+		SimplePT::Sample_Hemisphere_Cos_Weighted(hit_record.m_hit_unit_normal, wi, pdf_of_wi);
 		assert(pdf_of_wi > 0.0 && pdf_of_wi < 1.0);
 		Ray ray_wi(hit_record.m_hit_position, wi);
 
