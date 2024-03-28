@@ -7,27 +7,31 @@ namespace SimplePT
 	const double EPSILON = 0.0000001;
 	const double INF = std::numeric_limits<double>::max();
 
+	static Vector3 ToWorld(const Vector3& normal, const Vector3& vec)
+	{
+	   // Using right-hand coord
+		Vector3 up = std::abs(normal.m_y) < 0.999 ? Vector3(0.0, 1.0, 0.0) : Vector3(1.0, 0.0, 0.0);
+		Vector3 xAxis = CrossProduct(up, normal);
+		Vector3 yAxis = CrossProduct(normal, xAxis);
+		Vector3 zAxis = normal;
+
+		Vector3 world_vec = vec.m_x * xAxis + vec.m_y * yAxis + vec.m_z * zAxis;
+		return world_vec;
+	}
 
 	void Sample_Hemisphere_Uniform(const Vector3& input_normal, Vector3& output_wi, double& output_pdf_of_wi)
 	{
-		// rejection method // replace later
-		double rand_x = 1.0, rand_y = 1.0, rand_z = 1.0;
-		while (rand_x * rand_x + rand_y * rand_y + rand_z * rand_z > 1.0)
-		{
-			// random on sphere, not hemisphere
-			rand_x = SimplePT::GetRandomDouble_min_to_max(-1, 1);
-			rand_y = SimplePT::GetRandomDouble_min_to_max(-1, 1);
-			rand_z = SimplePT::GetRandomDouble_min_to_max(-1, 1);
-		}
+		double u1 = GetRandomDouble_0_to_1();
+		double u2 = GetRandomDouble_0_to_1();
+		double phi = 2 * PI * u2;
+		double z = u1;
+		double sin_theta = 1 - z * z;
+		double x = sin_theta * std::cos(phi);
+		double y = sin_theta * std::sin(phi);
 
-		Vector3 wi(rand_x, rand_y, rand_z);
-		wi = wi.Normalized();
+		Vector3 wi(x, y, z);
+		wi = ToWorld(input_normal, wi);
 
-		// hemisphere
-		if (DotProduct(wi, input_normal) < 0)
-		{
-			wi = (-wi);
-		}
 		output_wi = wi;
 		output_pdf_of_wi = 1 / (2 * PI);
 	}
