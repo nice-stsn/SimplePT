@@ -6,6 +6,7 @@
 #include "Color.h"
 #include "Material/Material.h"
 #include "stb_image_write.h"
+#include <omp.h>
 
 
 inline bool PathTracer::m_WritePixelRadiance(unsigned int x_id, unsigned int y_id, const Vector3& radiance)
@@ -41,10 +42,12 @@ void PathTracer::Render(int num_samples_per_pixel)
 	const int width = m_camera.GetWidth();
 	const int height = m_camera.GetHeight();
 
-	int index = 0;
+	int linecnt = 0;
+	#pragma omp parallel for 
 	for (int j = 0; j < height; ++j)
 	{
-		std::clog << "\rline: " << j << '/' << height - 1 ;
+		if (linecnt % 50 == 1)
+			std::clog << "\rline: " << linecnt << '/' << height - 1 << "     " << std::flush;
 		for (int i = 0; i < width; ++i)
 		{
 			/* debug: get processing image for debuggging */
@@ -69,6 +72,8 @@ void PathTracer::Render(int num_samples_per_pixel)
 			//	stbi_write_png("image/debug.png", width, height, CHANNEL_NUM, m_frame_buffer.get(), width * CHANNEL_NUM);
 			//}
 		}
+		#pragma omp atomic
+		linecnt++;
 	}
 
 	// if CHANNEL_NUM is 4, you can use alpha channel in png
@@ -78,7 +83,7 @@ void PathTracer::Render(int num_samples_per_pixel)
 	//stbi_write_jpg("image/stbjpg3.jpg", width, height, 3, m_frame_buffer.get(), 100);
 }
 
-// recursive call
+// Evaluate Rendering Equation
 // reference: https://agraphicsguynotes.com/posts/basics_about_path_tracing/
 // L(x1 -> x0) = Le(x1 -> x0)
 //					+ \int L(x2 -> x1) * f(x2 -> x1 -> x0) * cos1 * dw1 
@@ -108,7 +113,7 @@ Vector3 PathTracer::m_RayRadiance(const Ray& ray) const
 
 	/* second term: \int le(x2 -> x1) * f(x2 -> x1 -> x0) * cos(\theta) dw */
 	// random_point_on_light = PdfAreaLight(); // uniform p = 1/a && 1/p = a
-	// dir = brdf * (n * w) * (n' * w') * light_emmit / r ^ 2 / p; (integral on da)
+	// direct = brdf * (n * w) * (n' * w') * light_emmit / r ^ 2 / p; (integral on da)
 	Vector3 direct_illum_radiance;
 	double pdf_all_light;
 	HitRecord light_surface_info;

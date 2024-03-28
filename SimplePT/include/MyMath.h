@@ -23,15 +23,19 @@ namespace SimplePT {
 		return std::abs(a - b) < EPSILON;
 	}
 
+
+	// [0, 1) uniform
 	inline double GetRandomDouble_0_to_1()
 	{
-		static std::default_random_engine generator;
-		std::uniform_real_distribution<double> distribution(0.0, 1.0);
-
-		return distribution(generator);
+		//static std::uniform_real_distribution<double> distribution(0.0, 1.0);
+		//static std::mt19937 generator;
+		//return distribution(generator);
+		return rand() / (RAND_MAX + 1.0);
 	}
 
-
-
+	// [min, max) uniform
+	inline double GetRandomDouble_min_to_max(double min, double max) {
+		return min + (max - min) * GetRandomDouble_0_to_1();
+	}
 
 }

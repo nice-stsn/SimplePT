@@ -14,8 +14,11 @@ int main() {
 	double fovy = 39.3077;
 	//unsigned int width = 1024;
 	//unsigned int height = 1024;
-	unsigned int width = 102;
-	unsigned int height = 102;
+	unsigned int width = 512;
+	unsigned int height = 512;
+
+	//unsigned int width = 102;
+	//unsigned int height = 102;
 	//unsigned int width = 10;
 	//unsigned int height = 10;
 
@@ -54,7 +57,7 @@ int main() {
 	//my_scen.BuildBVH(); // todo
 	PathTracer my_path_tracer(my_scn, my_cam);
 
-	my_path_tracer.Render(1);
+	my_path_tracer.Render(10);
 
 	return 0;
 }

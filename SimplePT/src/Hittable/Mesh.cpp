@@ -32,6 +32,7 @@ Mesh::Mesh(const std::string& filename, const std::string& mtl_basepath, const s
 		return;
 	}
 	tinyobj::PrintInfo(m_attrib, m_shapes, m_materials);
+	std::cerr << "Load sucess." << std::endl;
 	// end tinyobj load
 
 	// set light materials
@@ -55,7 +56,9 @@ Mesh::Mesh(const std::string& filename, const std::string& mtl_basepath, const s
 	// build bvh
 	assert(m_shapes.size() == 1);
 	m_ptr_bvh = new MeshBVH(this);
+	std::clog << "Start building bvh...\nPlease wait..." << std::endl;
 	m_ptr_bvh->BuildBVH();
+	std::clog << "Build sucess." << std::endl;
 }
 
 Mesh::~Mesh()
@@ -108,38 +111,6 @@ bool Mesh::HitHappened(const Ray& ray, HitRecord& out_hit_record, double t_min, 
 		std::clog << "BVH of mesh is not built." << std::endl;
 		return false;
 	}
-
-	// bf: iterate over all triangles
-	//{
-	//	// for scnen in 'example-scenes-cg23', shape.size() == 1
-	//	assert(m_shapes.size() == 1);
-
-	//	bool b_hit_happened = false;
-	//	for (unsigned int i = 0; i < m_num_tris; ++i)
-	//	{
-	//		Triangle_info tri;
-	//		m_GetFaceInfo(i, tri);
-
-	//		VertexAttribs v0, v1, v2;
-	//		m_GetVertex(tri.vid0, v0);
-	//		m_GetVertex(tri.vid1, v1);
-	//		m_GetVertex(tri.vid2, v2);
-
-	//		double t_triangle = -1;
-	//		if (m_HitTriangle(ray, v0.position, v1.position, v2.position, t_triangle) && t_triangle > t_min && t_triangle < t_max && t_triangle < out_hit_record.m_t)
-	//		{
-	//			out_hit_record.m_t = t_triangle; // record smaller
-	//			b_hit_happened = true;
-
-	//			// shading with normal
-	//			Vector3 avg_normal = ((v0.normal + v1.normal + v2.normal) / 3).Normalized();
-	//			out_hit_record.m_hit_unit_normal = avg_normal; // flat normal
-	//			out_hit_record.m_material = tri.tri_material;
-	//		}
-	//	}
-
-	//	return b_hit_happened;
-	//}
 }
 
 bool Mesh::Triangle_HitHappened(unsigned int tri_id, const Ray& ray, HitRecord& out_hit_record, double t_min, double t_max) const
@@ -157,10 +128,10 @@ bool Mesh::Triangle_HitHappened(unsigned int tri_id, const Ray& ray, HitRecord& 
 	{
 		out_hit_record.m_t = t_triangle; // record smaller
 
-		// shading with normal
+		// flat normal
 		Vector3 avg_normal = ((v0.normal + v1.normal + v2.normal) / 3).Normalized();
 		out_hit_record.m_hit_position = ray.GetOrigin() + t_triangle * ray.GetDirection();
-		out_hit_record.m_hit_unit_normal = avg_normal; // flat normal
+		out_hit_record.m_hit_unit_normal = avg_normal; 
 		out_hit_record.m_material = tri.tri_material;
 
 		// debug info
