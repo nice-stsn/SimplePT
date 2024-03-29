@@ -7,6 +7,8 @@ class MeshBVH : public BVHBase
 public:
 	MeshBVH(const Mesh* ptr_mesh) : m_ptr_mesh(ptr_mesh) {}
 	~MeshBVH() {}
+	virtual void ExtractLightInfo(unsigned int actor_id, SceneLightInfo& out_info) const override {}
+	virtual void SampleLight_ByPrimitiveID(unsigned int primitive_id, HitRecord& out_sample_info, double& local_pdf) const override{}
 private:
 	const Mesh* m_ptr_mesh;
 

@@ -27,17 +27,20 @@ class Mesh : public HittableBase
 {
 public:
 	Mesh() = default;
-	Mesh(const std::string& filename, const std::string& mtl_basepath, const std::vector<LightInfo>& lights_info);  
+	Mesh(const std::string& filename, const std::string& mtl_basepath, const std::vector<XmlLightInfo>& lights_info);  
 	virtual ~Mesh();
 	virtual bool HitHappened(const Ray& ray, HitRecord& out_hit_record, double t_min = SimplePT::EPSILON, double t_max = SimplePT::INF) const override;
+	virtual void ExtractLightInfo(unsigned int actor_id, SceneLightInfo& out_info) const override;
+	virtual void SampleLight_ByPrimitiveID(unsigned int primitive_id, HitRecord& out_sample_info, double& local_pdf) const override;
 	bool Triangle_HitHappened(unsigned int tri_id, const Ray& ray, HitRecord& out_hit_record, double t_min = SimplePT::EPSILON, double t_max = SimplePT::INF) const;
 
 	inline unsigned int GetNumTris() const { return m_num_tris; }
 	Vector3 GetTriCenter(unsigned int tri_index) const;
 	void GetVertexsPosition(unsigned int f_id, Position3& v0, Position3& v1, Position3& v2) const;
 
+
 private:
-	std::vector<LightInfo> m_lights_info;
+	std::vector<XmlLightInfo> m_lights_info;
 
 	tinyobj::attrib_t m_attrib;
 	std::vector<tinyobj::shape_t> m_shapes; // hittables with mesh
@@ -47,6 +50,7 @@ private:
 	bool m_HitTriangle(const Ray& ray, const Position3& v0, const Position3& v1, const Position3& v2, double& t) const;
 	void m_GetFaceInfo(unsigned int f_id, Triangle_info& out_tri) const;
 	void m_GetVertex(const tinyobj::index_t& v_id, VertexAttribs& out_vertex) const;
+	double m_PrimitiveArea(unsigned int primitive_id) const;
 
 	unsigned int m_num_vtxs = 0;
 	unsigned int m_num_tris = 0;

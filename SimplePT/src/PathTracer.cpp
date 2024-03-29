@@ -108,8 +108,7 @@ Vector3 PathTracer::m_RayRadiance(const Ray& ray) const
 	}
 
 	// surface info
-	Vector3 kd = hit_record.m_material.GetKd(); 
-	Vector3 BRDF = kd / SimplePT::PI; 
+	Vector3 BRDF = hit_record.m_material.GetKd() / SimplePT::PI; 
 
 	/* second term: \int le(x2 -> x1) * f(x2 -> x1 -> x0) * cos(\theta) dw */
 	// direct = brdf * (n * w) * (n' * w') * light_emmit / r ^ 2 / p; (integral on da)
@@ -120,7 +119,7 @@ Vector3 PathTracer::m_RayRadiance(const Ray& ray) const
 	Vector3 dir2light = light_surface_info.m_hit_position - hit_record.m_hit_position;
 	Vector3 unit_dir2light = dir2light.Normalized();
 	Vector3 direct_illum_radiance;
-	if (m_Visible(hit_record.m_hit_position, light_surface_info.m_hit_position))
+	if (m_Visible(hit_record.m_hit_position, hit_record.m_hit_unit_normal, light_surface_info.m_hit_position))
 	{
 		double r2 = dir2light.SquareLength();
 		double cosi = std::max(0.0, DotProduct(hit_record.m_hit_unit_normal, unit_dir2light));
@@ -131,7 +130,6 @@ Vector3 PathTracer::m_RayRadiance(const Ray& ray) const
 
 	/* sampling no light */
 	// indir = brdf * (n * w) * m_RayRadiance(random_wi_on_hemisphere) / p  (integral on dwi)
-	Vector3 indirect_illum_radiance;
 	double RR = 0.8;
 	if (SimplePT::GetRandomDouble_0_to_1() < RR)
 	{
@@ -146,7 +144,7 @@ Vector3 PathTracer::m_RayRadiance(const Ray& ray) const
 			&& !next_obj_rec.m_material.HasEmission())
 		{
 			double cosi = std::max(0.0, DotProduct(hit_record.m_hit_unit_normal, wi));
-			indirect_illum_radiance = m_RayRadiance(ray_wi) * BRDF * cosi / pdf_of_wi / RR;
+			Vector3 indirect_illum_radiance = m_RayRadiance(ray_wi) * BRDF * cosi / pdf_of_wi / RR;
 			out_radiance += indirect_illum_radiance;
 		}
 
@@ -155,9 +153,12 @@ Vector3 PathTracer::m_RayRadiance(const Ray& ray) const
 	return out_radiance;
 }
 
-bool PathTracer::m_Visible(const Position3& pos0, const Position3& pos1) const 
+bool PathTracer::m_Visible(const Position3& pos0, const Vector3& normal0, const Position3& pos1) const
 {
 	Vector3 dir = pos1 - pos0;
+	if (DotProduct(dir, normal0) < 0.0) // back face
+		return false;
+
 	Vector3 unit_dir = dir.Normalized();
 	Ray shadow_ray(pos0 + SimplePT::EPSILON * unit_dir, unit_dir);
 	HitRecord block_rec;

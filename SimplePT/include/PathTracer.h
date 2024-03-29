@@ -29,7 +29,7 @@ private:
 	bool m_WritePixelColor(unsigned int x_id, unsigned int y_id, const Color3& col);
 	bool m_WritePixelRadiance(unsigned int x_id, unsigned int y_id, Vector3& radiance);
 	Vector3 m_RayRadiance(const Ray& ray) const;
-	bool m_Visible(const Position3& pos0, const Position3& pos1) const;
+	bool m_Visible(const Position3& pos0, const Vector3& normal0, const Position3& pos1) const;
 
 	static const int CHANNEL_NUM = 3;
 };
