@@ -10,8 +10,10 @@
 #include <cassert>
 
 
-inline bool PathTracer::m_WritePixelRadiance(unsigned int x_id, unsigned int y_id, const Vector3& radiance)
+
+inline bool PathTracer::m_WritePixelRadiance(unsigned int x_id, unsigned int y_id, Vector3& radiance)
 {
+	SimplePT::GammaCorrection(radiance);
 	Color3 pixel_color(radiance.m_x, radiance.m_y, radiance.m_z);
 	return m_WritePixelColor(x_id, y_id, pixel_color);
 }

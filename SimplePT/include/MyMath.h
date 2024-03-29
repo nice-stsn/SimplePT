@@ -24,6 +24,14 @@ namespace SimplePT {
 		return std::abs(a - b) < EPSILON;
 	}
 
+	inline void GammaCorrection(Vector3& radiance, double gamma = 2.2)
+	{
+		double inv_gamma = 1 / gamma;
+		radiance.m_x = std::pow(radiance.m_x, inv_gamma);
+		radiance.m_y = std::pow(radiance.m_y, inv_gamma);
+		radiance.m_z = std::pow(radiance.m_z, inv_gamma);
+	}
+
 
 	// [0, 1) uniform
 	inline double GetRandomDouble_0_to_1()
