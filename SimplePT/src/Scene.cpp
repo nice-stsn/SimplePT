@@ -35,7 +35,7 @@ void Scene::ComputeLightInfo()
 
 	for (unsigned int actor_id = 0; actor_id < m_actors.size(); ++actor_id)
 	{
-		const HittableBase* actor = m_actors[actor_id].get();
+		const HittableBase_WithLight* actor = m_actors[actor_id].get();
 		assert(actor != nullptr);
 		actor->ExtractLightInfo(actor_id, m_light_list);
 	}

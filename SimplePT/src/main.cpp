@@ -32,7 +32,7 @@ int main() {
 	Camera my_cam(eye, lookat, up, fovy, width, height);
 
 	/* set scene */
-	std::shared_ptr<HittableBase> p_mesh = std::make_shared<Mesh>(obj_filename, mtl_basepath, lights_info);
+	std::shared_ptr<HittableBase_WithLight> p_mesh = std::make_shared<Mesh>(obj_filename, mtl_basepath, lights_info);
 	Scene my_scn;
 	my_scn.AddHittableObject(p_mesh);
 	my_scn.ComputeLightInfo();

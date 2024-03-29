@@ -132,7 +132,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Camera.cpp" />
-    <ClCompile Include="src\Hittable.cpp" />
     <ClCompile Include="src\Hittable\BVHBase.cpp" />
     <ClCompile Include="src\Hittable\Hittable.cpp" />
     <ClCompile Include="src\Hittable\Mesh.cpp" />

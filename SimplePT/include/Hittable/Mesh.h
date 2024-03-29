@@ -23,12 +23,12 @@ struct Triangle_info
 
 class MeshBVH;
 
-class Mesh : public HittableBase
+class Mesh : public HittableBase_WithLight
 {
 public:
 	Mesh() = default;
 	Mesh(const std::string& filename, const std::string& mtl_basepath, const std::vector<XmlLightInfo>& lights_info);  
-	virtual ~Mesh();
+	virtual ~Mesh() override;
 	virtual bool HitHappened(const Ray& ray, HitRecord& out_hit_record, double t_min = SimplePT::EPSILON, double t_max = SimplePT::INF) const override;
 	virtual void ExtractLightInfo(unsigned int actor_id, SceneLightInfo& out_info) const override;
 	virtual void SampleLight_ByPrimitiveID(unsigned int primitive_id, HitRecord& out_sample_info, double& local_pdf) const override;

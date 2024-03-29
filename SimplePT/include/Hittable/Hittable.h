@@ -29,8 +29,16 @@ public:
 	HittableBase() {}
 	virtual ~HittableBase() = 0;
 	virtual bool HitHappened(const Ray& ray, HitRecord& out_hit_record, double t_min = SimplePT::EPSILON, double t_max = SimplePT::INF) const = 0;
-	virtual void ExtractLightInfo(unsigned int actor_id, SceneLightInfo& out_info) const;
-	virtual void SampleLight_ByPrimitiveID(unsigned int primitive_id, HitRecord& out_sample_info, double& local_pdf) const;
+
+private:
+
+};
+
+class HittableBase_WithLight : public HittableBase
+{
+public:
+	virtual void ExtractLightInfo(unsigned int actor_id, SceneLightInfo& out_info) const = 0;
+	virtual void SampleLight_ByPrimitiveID(unsigned int primitive_id, HitRecord& out_sample_info, double& local_pdf) const = 0;
 
 private:
 

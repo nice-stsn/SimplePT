@@ -74,8 +74,6 @@ public:
 
 	void BuildBVH();
 	virtual bool HitHappened(const Ray& ray, HitRecord& out_hit_record, double t_min = SimplePT::EPSILON, double t_max = SimplePT::INF) const override;
-	virtual void ExtractLightInfo(unsigned int actor_id, SceneLightInfo& out_info) const override {}
-	virtual void SampleLight_ByPrimitiveID(unsigned int primitive_id, HitRecord& out_sample_info, double& local_pdf) const {}
 
 protected:
 	std::vector<AABB> m_primitive_aabbs;		 // index by direct primitive index

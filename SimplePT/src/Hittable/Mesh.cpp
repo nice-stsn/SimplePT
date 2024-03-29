@@ -247,7 +247,7 @@ void Mesh::SampleLight_ByPrimitiveID(unsigned int primitive_id, HitRecord& out_s
 	out_sample_info.dbg_face_id_dir = primitive_id;
 	out_sample_info.m_material = tri.tri_material;
 
-	local_pdf = m_PrimitiveArea(primitive_id);
+	local_pdf = 1 / m_PrimitiveArea(primitive_id);
 
 }
 

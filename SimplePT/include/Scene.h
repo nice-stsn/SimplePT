@@ -15,21 +15,21 @@ public:
 	Scene() = default;
 	virtual ~Scene() override;
 
-	void AddHittableObject(const std::shared_ptr<HittableBase>& actor);
+	void AddHittableObject(const std::shared_ptr<HittableBase_WithLight>& actor);
 	void ComputeLightInfo();
 	virtual bool HitHappened(const Ray& ray, HitRecord& out_hit_record, double t_min = SimplePT::EPSILON, double t_max = SimplePT::INF) const override;
 
 	void SampleLight(HitRecord& hit_record, double& pdf) const;
 
 private:
-	std::vector<std::shared_ptr<HittableBase>> m_actors;
+	std::vector<std::shared_ptr<HittableBase_WithLight>> m_actors;
 	SceneLightInfo m_light_list;
 
 	// todo: scene bvh
 
 };
 
-inline void Scene::AddHittableObject(const std::shared_ptr<HittableBase>& actor)
+inline void Scene::AddHittableObject(const std::shared_ptr<HittableBase_WithLight>& actor)
 {
 	m_actors.push_back(actor);
 }
