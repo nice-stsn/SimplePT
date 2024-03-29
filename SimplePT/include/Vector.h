@@ -6,7 +6,7 @@
 class Vector3
 {
 public:
-	Vector3() = default;
+	Vector3() : m_x(0.0), m_y(0.0), m_z(0.0) {}
 	Vector3(double x, double y, double z) : m_x(x), m_y(y), m_z(z) {}
 	~Vector3() {}
 
@@ -63,6 +63,12 @@ public:
 		return Vector3(m_x * val, m_y * val, m_z * val);
 	}
 
+	inline Vector3  operator*(const Vector3& rhs)const
+	{
+		return Vector3(m_x * rhs.m_x, m_y * rhs.m_y, m_z * rhs.m_z);
+	}
+
+
 	inline Vector3  operator/(double val)const
 	{
 		if (val == 0.0f)
@@ -74,8 +80,34 @@ public:
 
 	inline Vector3 Normalized() const
 	{
-		double len = std::sqrt(m_x * m_x + m_y * m_y + m_z * m_z);
+		double len = Length();
 		return Vector3(m_x / len, m_y / len, m_z / len);
+	}
+
+	inline double SquareLength() const
+	{
+		return m_x * m_x + m_y * m_y + m_z * m_z;
+	}
+
+	inline double Length() const
+	{
+		return std::sqrt(m_x * m_x + m_y * m_y + m_z * m_z);
+	}
+
+	inline double& operator[](int index) 
+	{
+		if (index == 0) return m_x;
+		if (index == 1) return m_y;
+		if (index == 2) return m_z;
+		return m_x;
+	}
+
+	inline const double& operator[](int index) const
+	{
+		if (index == 0) return m_x;
+		if (index == 1) return m_y;
+		if (index == 2) return m_z;
+		return m_x;
 	}
 
 	double m_x, m_y, m_z;
@@ -101,6 +133,17 @@ inline Vector3 operator*(double t, const Vector3& vec)
 {
 	return Vector3(t * vec.m_x, t * vec.m_y, t * vec.m_z);
 }
+
+inline double SquareDistance (const Vector3& vl, const Vector3& vr)
+{
+	return vl.m_x * vr.m_x + vl.m_y * vr.m_y + vl.m_z * vr.m_z;
+}
+
+inline double Distance (const Vector3& vl, const Vector3& vr)
+{
+	return std::sqrt(SquareDistance(vl, vr));
+}
+
 
 
 using Position3 = Vector3;

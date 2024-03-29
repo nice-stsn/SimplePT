@@ -38,7 +38,10 @@ Ray Camera::CastRay(unsigned int x_id, unsigned int y_id) const
 {
 	Position3 pixel_center_i_j = 
 		m_center_of_upper_left_pixel + m_delta_r_per_pixel * x_id + m_delta_u_per_pixel * y_id;
-	Vector3 direction = pixel_center_i_j - m_eye;
+	auto r_offset = SimplePT::GetRandomDouble_min_to_max(-0.5, 0.5) * m_delta_r_per_pixel;
+	auto u_offset = SimplePT::GetRandomDouble_min_to_max(-0.5, 0.5) * m_delta_u_per_pixel;
+	Position3 rand_inside_pixel = pixel_center_i_j + r_offset + u_offset;
+	Vector3 direction = rand_inside_pixel - m_eye;
 
 	return Ray(m_eye, direction);
 }
