@@ -47,34 +47,18 @@ void Scene::SampleLight(HitRecord& sample_info, double& pdf) const
 	// assert only one mesh actor in scene
 	assert(m_actors.size() == 1);
 
-	//m_actors[0].SampleLight(sample_info, pdf);
 	/* sample lights */
-	// total area
-	//double rand_area = SimplePT::GetRandomDouble_min_to_max(0.0, m_light_list.GetTotalArea());
 	double get_light_pdf = -1.0;
 	double local_pdf = -1.0;
 
-	LightPrimitiveInfo light_primitive = m_light_list.GetRandomLightByArea(get_light_pdf);
+	//LightPrimitiveInfo light_primitive = m_light_list.GetRandomLightByArea(get_light_pdf);
+	LightPrimitiveInfo light_primitive = m_light_list.GetRandomLightByAreaRadiance(get_light_pdf);
 	auto& actor = m_actors[light_primitive.m_actor_id];
 	actor->SampleLight_ByPrimitiveID(light_primitive.m_actor_primitive_id, sample_info, local_pdf); // assert emission
 
 	pdf = get_light_pdf * local_pdf;
 	assert(local_pdf <= 1.0 && local_pdf >= 0.0);
 	assert(pdf <= 1.0 && pdf >= 0.0);
-
-	///* temp sample lights */
-	//// todo: temp for cornell box uniform sampling 
-	//double x0 = 213, x1 = 343;
-	//double z0 = 227, z1 = 332;
-	//pdf = 1 / ((x1 - x0) * (z1 - z0)); // Uniform light
-
-	//double rand_x = SimplePT::GetRandomDouble_min_to_max(x0, x1);
-	//double rand_z = SimplePT::GetRandomDouble_min_to_max(z0, z1);
-	//sample_info.m_hit_position = Position3(rand_x, 548.799, rand_z); // cornell box light
-	//sample_info.m_hit_unit_normal = Vector3(0.0, -1.0, 0.0); // cornell box light
-	////sample_info.m_material = Material(Vector3(0.8, 0.8, 0.8)); // temp
-	//sample_info.m_material = Material(Vector3(34.0, 24.0, 8.0)); // temp radiance
-	///* temp sample lights */
 
 }
 

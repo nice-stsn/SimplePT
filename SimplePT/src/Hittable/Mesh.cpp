@@ -219,7 +219,7 @@ void Mesh::ExtractLightInfo(unsigned int actor_id, SceneLightInfo& out_info) con
 		{
 			// compute area
 			double area = m_PrimitiveArea(i);
-			out_info.AddLightPrimitive(actor_id, i, area);
+			out_info.AddLightPrimitive(actor_id, i, area, tri.tri_material.GetEmission());
 		}
 	}
 }

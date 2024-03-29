@@ -39,7 +39,7 @@ int main() {
 
 	/* set path tracer */
 	PathTracer my_path_tracer(my_scn, my_cam, 0.8);
-	my_path_tracer.Render(10);
+	my_path_tracer.Render(4);
 
 	return 0;
 }
