@@ -57,9 +57,6 @@
     <ClCompile Include="third_party\tinyxml2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="include\XmlLoader.h">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\XmlLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -117,6 +114,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Forward_declaration.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\XmlLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

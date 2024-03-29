@@ -131,7 +131,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="include\XmlLoader.h" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\Hittable.cpp" />
     <ClCompile Include="src\Hittable\BVHBase.cpp" />
@@ -151,6 +150,7 @@
   <ItemGroup>
     <ClInclude Include="include\Camera.h" />
     <ClInclude Include="include\Color.h" />
+    <ClInclude Include="include\Forward_declaration.h" />
     <ClInclude Include="include\Hittable\BVHBase.h" />
     <ClInclude Include="include\Hittable\Hittable.h" />
     <ClInclude Include="include\Hittable\Mesh.h" />
@@ -164,6 +164,7 @@
     <ClInclude Include="include\Ray.h" />
     <ClInclude Include="include\Scene.h" />
     <ClInclude Include="include\Vector.h" />
+    <ClInclude Include="include\XmlLoader.h" />
     <ClInclude Include="third_party\stb_image_write.h" />
     <ClInclude Include="third_party\tinyxml2.h" />
     <ClInclude Include="third_party\tiny_obj_loader.h" />

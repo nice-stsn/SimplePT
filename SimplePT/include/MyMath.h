@@ -16,7 +16,7 @@ namespace SimplePT {
 	
 	inline bool EqualApprox(double a, double b)
 	{
-		return std::abs(a - b) < 0.0001;
+		return std::abs(a - b) < 0.01;
 	}
 
 	inline bool Equal(double a, double b)

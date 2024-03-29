@@ -121,23 +121,25 @@ Vector3 PathTracer::m_RayRadiance(const Ray& ray) const
 	double pdf_all_light;
 	HitRecord light_surface_info;
 	m_scene.SampleLight(light_surface_info, pdf_all_light);
-	Vector3 obj2light = light_surface_info.m_hit_position - hit_record.m_hit_position;
-	// check if light is blocked
-	HitRecord block_rec;
-	m_scene.HitHappened(Ray(hit_record.m_hit_position, obj2light), block_rec);
+	//// check if light is blocked
+	//HitRecord block_rec;
+	//m_scene.HitHappened(Ray(hit_record.m_hit_position, obj2light), block_rec);
 
 	//Vector3 BRDF = hit_record.m_material->Eval(...);
 	//Vector3 kd(0.79, 0.76, 0.73); // temp diffuse white
 	Vector3 kd = hit_record.m_material.GetKd(); // temp diffuse white
 	Vector3 BRDF = kd / SimplePT::PI; // temp diffuse white
 
-	Vector3 blocked_offset = block_rec.m_hit_position - hit_record.m_hit_position;
+	//Vector3 blocked_offset = block_rec.m_hit_position - hit_record.m_hit_position;
 
-	if (SimplePT::EqualApprox(blocked_offset.Length(), obj2light.Length()))
+	Vector3 dir2light = light_surface_info.m_hit_position - hit_record.m_hit_position;
+	Vector3 unit_dir2light = dir2light.Normalized();
+
+	if (m_Visible(hit_record.m_hit_position, light_surface_info.m_hit_position))
 	{
-		double r2 = obj2light.SquareLength();
-		double cosi = std::max(0.0, DotProduct(hit_record.m_hit_unit_normal, obj2light.Normalized()));
-		double cosl = std::max(0.0, DotProduct(light_surface_info.m_hit_unit_normal, -obj2light.Normalized()));
+		double r2 = dir2light.SquareLength();
+		double cosi = std::max(0.0, DotProduct(hit_record.m_hit_unit_normal, unit_dir2light));
+		double cosl = std::max(0.0, DotProduct(light_surface_info.m_hit_unit_normal, -unit_dir2light));
 		direct_illum_radiance = light_surface_info.m_material.GetEmission() * BRDF  * cosi * cosl / r2 / pdf_all_light;
 		out_radiance += direct_illum_radiance;
 	}
@@ -169,3 +171,14 @@ Vector3 PathTracer::m_RayRadiance(const Ray& ray) const
 	return out_radiance;
 }
 
+bool PathTracer::m_Visible(const Position3& pos0, const Position3& pos1) const 
+{
+	Vector3 dir = pos1 - pos0;
+	Vector3 unit_dir = dir.Normalized();
+	Ray shadow_ray(pos0 + SimplePT::EPSILON * unit_dir, unit_dir);
+	HitRecord block_rec;
+	m_scene.HitHappened(shadow_ray , block_rec);
+	Vector3 offset = pos1 - block_rec.m_hit_position;
+
+	return offset.Length() < 0.01; // close enough to light
+}

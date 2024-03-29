@@ -134,5 +134,16 @@ inline Vector3 operator*(double t, const Vector3& vec)
 	return Vector3(t * vec.m_x, t * vec.m_y, t * vec.m_z);
 }
 
+inline double SquareDistance (const Vector3& vl, const Vector3& vr)
+{
+	return vl.m_x * vr.m_x + vl.m_y * vr.m_y + vl.m_z * vr.m_z;
+}
+
+inline double Distance (const Vector3& vl, const Vector3& vr)
+{
+	return std::sqrt(SquareDistance(vl, vr));
+}
+
+
 
 using Position3 = Vector3;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Vector.h"
 #include "Hittable/Hittable.h"
 #include "Material/Material.h"
 #include "tiny_obj_loader.h"

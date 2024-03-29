@@ -3,7 +3,6 @@
 #include "Light.h"
 
 
-
 bool loadXmlFile(
     const std::string& filePath,
     std::vector<LightInfo>& lights_info,

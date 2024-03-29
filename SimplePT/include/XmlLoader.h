@@ -1,9 +1,9 @@
 #pragma once
+#include "Forward_declaration.h"
 #include <string>
 #include <vector>
-#include "Vector.h"
 
-struct LightInfo;
+
 bool loadXmlFile(
 	const std::string& filePath,
 	std::vector<LightInfo>& lights_info,

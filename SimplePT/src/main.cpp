@@ -1,10 +1,10 @@
-
-#include <iostream>
+#include <string>
+#include <vector>
+#include <memory>
 #include "Light.h"
-#include "Camera.h"
-#include "PathTracer.h"
+#include "Vector.h"
 #include "XmlLoader.h"
-
+#include "PathTracer.h"
 
 int main() {
 	/* Select one example */
@@ -38,7 +38,7 @@ int main() {
 
 	/* set path tracer */
 	PathTracer my_path_tracer(my_scn, my_cam);
-	my_path_tracer.Render(10);
+	my_path_tracer.Render(1);
 
 	return 0;
 }
