@@ -28,7 +28,6 @@ int main() {
 	unsigned int height = 0;
 	loadXmlFile(xml_filename, lights_info, eye, lookat, up, fovy, width, height);
 
-
 	/* set camera */
 	Camera my_cam(eye, lookat, up, fovy, width, height);
 

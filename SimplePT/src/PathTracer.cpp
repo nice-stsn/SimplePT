@@ -50,22 +50,22 @@ void PathTracer::Render(int num_samples_per_pixel, double RussianRoulette)
 	int right = width;
 
 /* debug */
-//#define PART_RENDER
+#define PART_RENDER
 #ifdef PART_RENDER
 // wood
-const unsigned int part_l = 420;
-const unsigned int part_b = 604;
+const unsigned int part_l = 800;
+const unsigned int part_b = 160;
 // mirror
 //const unsigned int part_l = 700;
 //const unsigned int part_b = 300;
 // wall in mirror
 //const unsigned int part_l = 900;
 //const unsigned int part_b = 275;
-const int part_w = 100;
-const int part_h = 100;
+const int part_w = 130;
+const int part_h = 350;
 const unsigned int part_r = part_l + part_w;
 const unsigned int part_t = part_b + part_h;
-num_samples_per_pixel = 1;
+num_samples_per_pixel = 500;
 std::clog << "\nOnly part of image is rendered\n" << std::endl;
 #endif // PART_RENDER
 
@@ -113,6 +113,14 @@ std::clog << "\nOnly part of image is rendered\n" << std::endl;
 
 }
 
+Vector3 PathTracer::m_MCInt(const HitRecord& hit_record, const Vector3& unit_wo, const Ray& wi_ray, double pdf) const
+{
+	Vector3 unit_wi = wi_ray.GetUnitDir();
+	Vector3 BRDF = hit_record.m_material.BRDF_PhongModel(unit_wo, unit_wi, hit_record.m_hit_unit_normal);
+	double cosi = std::max(0.0, DotProduct(hit_record.m_hit_unit_normal, unit_wi));
+	return m_RayRadiance(wi_ray) * BRDF * cosi / pdf;
+}
+
 // Evaluate Rendering Equation
 // reference: https://agraphicsguynotes.com/posts/basics_about_path_tracing/
 // L(x1 -> x0) = Le(x1 -> x0)
@@ -139,7 +147,7 @@ Vector3 PathTracer::m_RayRadiance(const Ray& ray) const
 		}
 	}
 
-	/* first term: Le(x1 -> x0) */
+	/* first term: self emission */
 	if (hit_record.m_material.HasEmission())
 	{
 		Vector3 emit_radiance(hit_record.m_material.GetEmission());
@@ -147,49 +155,82 @@ Vector3 PathTracer::m_RayRadiance(const Ray& ray) const
 		return out_radiance; // eye ray hit light
 	}
 
-	/* second term: \int le(x2 -> x1) * f(x2 -> x1 -> x0) * cos(\theta) dw */
-	// direct = brdf * (n * w) * (n' * w') * light_emmit / r ^ 2 / p; (integral on da)
-	HitRecord light_surface_info;
-	double pdf_all_light;
-	m_scene.SampleLight(light_surface_info, pdf_all_light);
-
-	Vector3 dir2light = light_surface_info.m_hit_position - hit_record.m_hit_position;
-	Vector3 unit_wi = dir2light.Normalized();
+	/* second term: integral of reflection */
 	Vector3 unit_wo = -ray.GetDirection().Normalized();
-	if (m_Visible(hit_record.m_hit_position, hit_record.m_hit_unit_normal, light_surface_info.m_hit_position))
+	/* part1: sample toward lights */
 	{
-		// Phong model
-		Vector3 BRDF = hit_record.m_material.BRDF_PhongModel(unit_wo, unit_wi, hit_record.m_hit_unit_normal);
-		double r2 = dir2light.SquareLength();
-		double cosi = std::max(0.0, DotProduct(hit_record.m_hit_unit_normal, unit_wi));
-		double cosl = std::max(0.0, DotProduct(light_surface_info.m_hit_unit_normal, -unit_wi));
-		Vector3 direct_illum_radiance = 
-			light_surface_info.m_material.GetEmission() 
-			* BRDF  * cosi * cosl / r2 / pdf_all_light;
-		out_radiance += direct_illum_radiance;
+		HitRecord light_surface_info;
+		double pdf_all_light;
+		m_scene.SampleLight(light_surface_info, pdf_all_light);
+		Vector3 dir2light = light_surface_info.m_hit_position - hit_record.m_hit_position;
+		Vector3 unit_wi = dir2light.Normalized();
+		if (m_Visible(hit_record.m_hit_position, hit_record.m_hit_unit_normal, light_surface_info.m_hit_position))
+		{
+			// Phong model
+			Vector3 BRDF = hit_record.m_material.BRDF_PhongModel(unit_wo, unit_wi, hit_record.m_hit_unit_normal);
+			double r2 = dir2light.SquareLength();
+			double cosi = std::max(0.0, DotProduct(hit_record.m_hit_unit_normal, unit_wi));
+			double cosl = std::max(0.0, DotProduct(light_surface_info.m_hit_unit_normal, -unit_wi));
+			Vector3 direct_illum_radiance =
+				light_surface_info.m_material.GetEmission()
+				* BRDF * cosi * cosl / r2 / pdf_all_light;
+			out_radiance += direct_illum_radiance;
+		}
 	}
 
-	/* sampling no light */
-	// indir = brdf * (n * w) * m_RayRadiance(random_wi_on_hemisphere) / p  (integral on dwi)
-	if (SimplePT::GetRandomDouble_0_to_1() < m_RussianRoulette)
+	/* part 2: sampling hemisphere no light */
+	// performs bad when sample specular to light
 	{
-		Vector3 wi;
-		double pdf_of_wi = -1.0;
-		SimplePT::Sample_Hemisphere_Cos_Weighted(hit_record.m_hit_unit_normal, wi, pdf_of_wi);
-		Ray ray_wi(hit_record.m_hit_position, wi);
-
-		HitRecord next_obj_rec;
-		if (m_scene.HitHappened(ray_wi, next_obj_rec)
-			&& !next_obj_rec.m_material.HasEmission())
+		bool sampled_specular_term = false;
+		Vector3 R = SimplePT::Reflect(hit_record.m_hit_unit_normal, unit_wo);
+		/* specular hemisphere */
+		if (hit_record.m_material.HasSpecular())
 		{
-			Vector3 BRDF = hit_record.m_material.BRDF_PhongModel(unit_wo, wi, hit_record.m_hit_unit_normal);
-			double cosi = std::max(0.0, DotProduct(hit_record.m_hit_unit_normal, wi));
-			Vector3 indirect_illum_radiance 
-				= m_RayRadiance(ray_wi) 
-				* BRDF * cosi / pdf_of_wi / m_RussianRoulette;
-			out_radiance += indirect_illum_radiance;
+			sampled_specular_term = true;
+			if (SimplePT::GetRandomDouble_0_to_1() < m_RussianRoulette)
+			{
+				Vector3 wi;
+				double pdf_of_wi = -1.0;
+				bool wi_under_hit_surface = true;
+				hit_record.SampleSpecular(unit_wo, wi, pdf_of_wi, wi_under_hit_surface);
+
+				Ray wi_ray(hit_record.m_hit_position, wi);
+				HitRecord next_obj_rec;
+				if (!wi_under_hit_surface
+					&& m_scene.HitHappened(wi_ray, next_obj_rec)
+					&& !next_obj_rec.m_material.HasEmission()
+					)
+				{
+					Vector3 indirect_illum_radiance_specular
+						= m_MCInt(hit_record, unit_wo, wi_ray, pdf_of_wi) / m_RussianRoulette;
+					out_radiance += indirect_illum_radiance_specular;
+				}
+			}
 		}
 
+		/* hemisphere exclude part of specular */
+		if (SimplePT::GetRandomDouble_0_to_1() < m_RussianRoulette)
+		{
+			Vector3 wi;
+			double pdf_of_wi = -1.0;
+			SimplePT::Sample_Hemisphere_Cos_Weighted(hit_record.m_hit_unit_normal, wi, pdf_of_wi);
+
+			// not inside specular hemisphere
+			if (!sampled_specular_term && !(DotProduct(wi, R) > 0.0))
+			{
+				Ray wi_ray(hit_record.m_hit_position, wi);
+				HitRecord next_obj_rec;
+				if (m_scene.HitHappened(wi_ray, next_obj_rec)
+					&& !next_obj_rec.m_material.HasEmission()
+					)
+				{
+					Vector3 indirect_illum_radiance
+						= m_MCInt(hit_record, unit_wo, wi_ray, pdf_of_wi) / m_RussianRoulette;
+					out_radiance += indirect_illum_radiance;
+				}
+			}
+
+		}
 	}
 
 	return out_radiance;

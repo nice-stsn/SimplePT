@@ -38,7 +38,7 @@ Mesh::Mesh(const std::string& filename, const std::string& mtl_basepath,
 	std::cerr << "Load sucess." << std::endl;
 	std::cerr << "=====================================" << std::endl;
 	// end tinyobj load
-#ifdef DEBUG_PT
+#ifdef DEBUG_BATHROOM
 	// check material type
 	const int num_mat = 32;
 	unsigned int mat_id_cnt[num_mat] = {};
@@ -51,7 +51,7 @@ Mesh::Mesh(const std::string& filename, const std::string& mtl_basepath,
 	{
 		std::clog << "material:name = " << m_materials[i].name << " id = " << i << " cnt = " << mat_id_cnt[i] << std::endl;
 	}
-#endif // DEBUG_PT
+#endif // DEBUG_BATHROOM
 
 
 	/* Add material information */

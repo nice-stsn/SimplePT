@@ -20,6 +20,9 @@ struct HitRecord
 
 	double m_t = SimplePT::INF;
 
+	void SampleSpecular (const Vector3& input_unit_wo, Vector3& out_unit_wi,
+		double& out_pdf_of_wi, bool& out_wi_under_hit_surface) const;
+
 };
 
 class HittableBase

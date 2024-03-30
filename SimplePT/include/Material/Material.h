@@ -14,6 +14,7 @@ public:
 	inline bool HasEmission() const { return m_has_emission;  }
 	inline bool HasSpecular() const { return m_has_specular;  }
 	inline Vector3 GetEmission() const { return m_emission; }
+	inline double GetNs() const { return m_ns; }
 	inline Vector3 GetKd() const { return m_kd; }
 	inline std::string GetTexutreName() const { return m_texutre_name; }
 

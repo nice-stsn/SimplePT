@@ -31,6 +31,7 @@ private:
 	bool m_WritePixelRadiance(unsigned int x_id, unsigned int y_id, Vector3& radiance);
 	Vector3 m_RayRadiance(const Ray& ray) const;
 	bool m_Visible(const Position3& pos0, const Vector3& normal0, const Position3& pos1) const;
+	Vector3 m_MCInt(const HitRecord& hit_record, const Vector3& unit_wo, const Ray& wi_ray, double pdf) const;
 
 	static const int CHANNEL_NUM = 3;
 };

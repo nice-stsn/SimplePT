@@ -1,3 +1,4 @@
+#include <cassert>
 #include "Material/Material.h"
 #include "MyMath.h"
 #include "tiny_obj_loader.h"
@@ -53,8 +54,9 @@ Vector3 Material::BRDF_PhongModel(const Vector3& wo, const Vector3& wi, const Ve
 	// specular
 	if (m_has_specular)
 	{
-		double cos_refwi_wo = DotProduct(reflected_unit_wi, wo); // cos(reflected_unit_wi, unit_wo);
-		double cos_wi_N = DotProduct(unit_wi, N); // cos(reflected_unit_wi, unit_wo);
+		double cos_refwi_wo = std::max(0.0, DotProduct(reflected_unit_wi, wo));
+		double cos_wi_N = std::max(0.0, DotProduct(unit_wi, N));
+		assert(cos_wi_N != 0.0);
 		Vector3 brdf_phong_specular = m_ks * std::pow(cos_refwi_wo, m_ns) / cos_wi_N;
 		brdf_all += brdf_phong_specular;
 	}
