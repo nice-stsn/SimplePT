@@ -8,9 +8,9 @@
 
 int main() {
 	/* Select one example */
-	//std::string example_name = "bathroom";
+	std::string example_name = "bathroom";
 	//std::string example_name = "cornell-box";
-	std::string example_name = "veach-mis";
+	//std::string example_name = "veach-mis";
 
 	std::string resources_folder = "./example-scenes-cg23/";
 	std::string example_folder = resources_folder  + example_name + '/';
@@ -39,7 +39,7 @@ int main() {
 	my_scn.ComputeLightInfo();
 
 	/* set path tracer */
-	const int spp = 10;
+	const int spp = 1;
 	const double rr = 0.8;
 	PathTracer my_path_tracer(my_scn, my_cam, rr);
 	my_path_tracer.Render(spp);
