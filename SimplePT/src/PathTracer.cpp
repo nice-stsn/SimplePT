@@ -34,7 +34,7 @@ inline bool PathTracer::m_WritePixelColor(unsigned int x_id, unsigned int y_id, 
 	return true;
 }
 
-void PathTracer::Render(int num_samples_per_pixel)
+void PathTracer::Render(int num_samples_per_pixel, double RussianRoulette)
 {
 	std::clog << "start rendering" << std::endl;
 	std::clog << "SPP = " << num_samples_per_pixel << std::endl;
@@ -60,7 +60,8 @@ void PathTracer::Render(int num_samples_per_pixel)
 			if (i == debug_pixel_x && j == debug_pixel_y)
 			{
 				m_WritePixelColor(i, j, Color3(255u, 0u, 0u)); // red pixel
-				stbi_write_png("image/debug.png", width, height, CHANNEL_NUM, m_frame_buffer.get(), width * CHANNEL_NUM);
+				stbi_write_png("image/debug.png", width, height, 
+					CHANNEL_NUM, m_frame_buffer.get(), width * CHANNEL_NUM);
 			}
 #endif // DEBUG_PT
 
@@ -79,7 +80,8 @@ void PathTracer::Render(int num_samples_per_pixel)
 	}
 
 	// if CHANNEL_NUM is 4, you can use alpha channel in png
-	stbi_write_png("image/stbpng.png", width, height, CHANNEL_NUM, m_frame_buffer.get(), width * CHANNEL_NUM);
+	stbi_write_png("image/stbpng.png", width, height,
+		CHANNEL_NUM, m_frame_buffer.get(), width * CHANNEL_NUM);
 
 }
 
@@ -107,10 +109,6 @@ Vector3 PathTracer::m_RayRadiance(const Ray& ray) const
 		return out_radiance; // eye ray hit light
 	}
 
-	// surface info
-	Vector3 kd = hit_record.m_material.GetKd(); 
-	Vector3 BRDF = kd / SimplePT::PI; 
-
 	/* second term: \int le(x2 -> x1) * f(x2 -> x1 -> x0) * cos(\theta) dw */
 	// direct = brdf * (n * w) * (n' * w') * light_emmit / r ^ 2 / p; (integral on da)
 	HitRecord light_surface_info;
@@ -118,22 +116,24 @@ Vector3 PathTracer::m_RayRadiance(const Ray& ray) const
 	m_scene.SampleLight(light_surface_info, pdf_all_light);
 
 	Vector3 dir2light = light_surface_info.m_hit_position - hit_record.m_hit_position;
-	Vector3 unit_dir2light = dir2light.Normalized();
-	Vector3 direct_illum_radiance;
-	if (m_Visible(hit_record.m_hit_position, light_surface_info.m_hit_position))
+	Vector3 unit_wi = dir2light.Normalized();
+	Vector3 unit_wo = -ray.GetDirection().Normalized();
+	if (m_Visible(hit_record.m_hit_position, hit_record.m_hit_unit_normal, light_surface_info.m_hit_position))
 	{
+		// Phong model
+		Vector3 BRDF = hit_record.m_material.BRDF_PhongModel(unit_wo, unit_wi, hit_record.m_hit_unit_normal);
 		double r2 = dir2light.SquareLength();
-		double cosi = std::max(0.0, DotProduct(hit_record.m_hit_unit_normal, unit_dir2light));
-		double cosl = std::max(0.0, DotProduct(light_surface_info.m_hit_unit_normal, -unit_dir2light));
-		direct_illum_radiance = light_surface_info.m_material.GetEmission() * BRDF  * cosi * cosl / r2 / pdf_all_light;
+		double cosi = std::max(0.0, DotProduct(hit_record.m_hit_unit_normal, unit_wi));
+		double cosl = std::max(0.0, DotProduct(light_surface_info.m_hit_unit_normal, -unit_wi));
+		Vector3 direct_illum_radiance = 
+			light_surface_info.m_material.GetEmission() 
+			* BRDF  * cosi * cosl / r2 / pdf_all_light;
 		out_radiance += direct_illum_radiance;
 	}
 
 	/* sampling no light */
 	// indir = brdf * (n * w) * m_RayRadiance(random_wi_on_hemisphere) / p  (integral on dwi)
-	Vector3 indirect_illum_radiance;
-	double RR = 0.8;
-	if (SimplePT::GetRandomDouble_0_to_1() < RR)
+	if (SimplePT::GetRandomDouble_0_to_1() < m_RussianRoulette)
 	{
 		Vector3 wi;
 		double pdf_of_wi = -1.0;
@@ -145,8 +145,11 @@ Vector3 PathTracer::m_RayRadiance(const Ray& ray) const
 		if (m_scene.HitHappened(ray_wi, next_obj_rec)
 			&& !next_obj_rec.m_material.HasEmission())
 		{
+			Vector3 BRDF = hit_record.m_material.BRDF_PhongModel(unit_wo, wi, hit_record.m_hit_unit_normal);
 			double cosi = std::max(0.0, DotProduct(hit_record.m_hit_unit_normal, wi));
-			indirect_illum_radiance = m_RayRadiance(ray_wi) * BRDF * cosi / pdf_of_wi / RR;
+			Vector3 indirect_illum_radiance 
+				= m_RayRadiance(ray_wi) 
+				* BRDF * cosi / pdf_of_wi / m_RussianRoulette;
 			out_radiance += indirect_illum_radiance;
 		}
 
@@ -155,9 +158,12 @@ Vector3 PathTracer::m_RayRadiance(const Ray& ray) const
 	return out_radiance;
 }
 
-bool PathTracer::m_Visible(const Position3& pos0, const Position3& pos1) const 
+bool PathTracer::m_Visible(const Position3& pos0, const Vector3& normal0, const Position3& pos1) const
 {
 	Vector3 dir = pos1 - pos0;
+	if (DotProduct(dir, normal0) < 0.0) // back face
+		return false;
+
 	Vector3 unit_dir = dir.Normalized();
 	Ray shadow_ray(pos0 + SimplePT::EPSILON * unit_dir, unit_dir);
 	HitRecord block_rec;

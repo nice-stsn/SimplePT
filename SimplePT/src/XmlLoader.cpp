@@ -5,7 +5,7 @@
 
 bool loadXmlFile(
     const std::string& filePath,
-    std::vector<LightInfo>& lights_info,
+    std::vector<XmlLightInfo>& lights_info,
     Position3& eye,
     Position3& lookat,
     Vector3& up,
@@ -56,7 +56,7 @@ bool loadXmlFile(
 	tinyxml2::XMLElement* lightElement = doc.FirstChildElement("light");
 	while (lightElement)
 	{
-		LightInfo light_info;
+		XmlLightInfo light_info;
 
 		light_info.m_light_mtl_name = lightElement->Attribute("mtlname");
 

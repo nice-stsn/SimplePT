@@ -52,7 +52,7 @@ namespace SimplePT
 		wi = ToWorld(input_normal, wi);
 
 		output_wi = wi;
-		output_pdf_of_wi = z / PI ;
+		output_pdf_of_wi = z / PI;
 	}
 
 }

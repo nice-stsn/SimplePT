@@ -6,7 +6,7 @@
 
 bool loadXmlFile(
 	const std::string& filePath,
-	std::vector<LightInfo>& lights_info,
+	std::vector<XmlLightInfo>& lights_info,
 	Position3& eye,
 	Position3& lookat,
 	Vector3& up,

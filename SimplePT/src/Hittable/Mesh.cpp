@@ -7,7 +7,7 @@
 #include <cassert>
 
 Mesh::Mesh(const std::string& filename, const std::string& mtl_basepath, 
-	const std::vector<LightInfo>& lights_info)
+	const std::vector<XmlLightInfo>& lights_info)
 	: m_lights_info(std::move(lights_info))
 {
 	// use tiny_obj_loader: https://github.com/tinyobjloader/tinyobjloader/blob/release/loader_example.cc
@@ -208,3 +208,54 @@ void Mesh::GetVertexsPosition(unsigned int f_id, Position3& v0, Position3& v1, P
 }
 
 
+void Mesh::ExtractLightInfo(unsigned int actor_id, SceneLightInfo& out_info) const
+{
+	for (unsigned int i = 0; i < m_num_tris; ++i)
+	{
+		Triangle_info tri;
+		m_GetFaceInfo(i, tri);
+
+		if (tri.tri_material.HasEmission())
+		{
+			// compute area
+			double area = m_PrimitiveArea(i);
+			out_info.AddLightPrimitive(actor_id, i, area, tri.tri_material.GetEmission());
+		}
+	}
+}
+
+void Mesh::SampleLight_ByPrimitiveID(unsigned int primitive_id, HitRecord& out_sample_info, double& local_pdf) const
+{
+	// https://kingins.cn/2022/03/08/%E4%B8%89%E8%A7%92%E5%BD%A2%E9%9A%8F%E6%9C%BA%E5%9D%87%E5%8C%80%E7%82%B9%E9%87%87%E6%A0%B7%E7%AE%97%E6%B3%95/
+	Triangle_info tri;
+	m_GetFaceInfo(primitive_id, tri);
+	assert(tri.tri_material.HasEmission());
+
+	VertexAttribs v0, v1, v2;
+	m_GetVertex(tri.vid0, v0);
+	m_GetVertex(tri.vid1, v1);
+	m_GetVertex(tri.vid2, v2);
+
+	double u = SimplePT::GetRandomDouble_0_to_1();
+	double sqrt_v = std::sqrt(SimplePT::GetRandomDouble_0_to_1());
+	double a = sqrt_v * (1 - u);
+	double b = u * sqrt_v;
+	double c = 1 - sqrt_v;
+
+	out_sample_info.m_hit_position = a * v0.position + b * v1.position + c * v2.position;
+	out_sample_info.m_hit_unit_normal = (a * v0.normal + b * v1.normal + c * v2.normal).Normalized();
+	out_sample_info.dbg_face_id_dir = primitive_id;
+	out_sample_info.m_material = tri.tri_material;
+
+	local_pdf = 1 / m_PrimitiveArea(primitive_id);
+
+}
+
+double Mesh::m_PrimitiveArea(unsigned int primitive_id) const
+{
+	Position3 A, B, C;
+	GetVertexsPosition(primitive_id, A, B, C);
+	Vector3 E1 = B - A;
+	Vector3 E2 = C - A;
+	return 0.5 * CrossProduct(E1, E2).Length();
+}
