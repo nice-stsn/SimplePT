@@ -57,7 +57,6 @@ void Scene::SampleLight(HitRecord& sample_info, double& pdf) const
 	actor->SampleLight_ByPrimitiveID(light_primitive.m_actor_primitive_id, sample_info, local_pdf); // assert emission
 
 	pdf = get_light_pdf * local_pdf;
-	assert(local_pdf <= 1.0 && local_pdf >= 0.0);
 	assert(pdf <= 1.0 && pdf >= 0.0);
 
 }

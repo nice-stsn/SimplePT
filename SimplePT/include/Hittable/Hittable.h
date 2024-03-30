@@ -10,7 +10,6 @@
 struct HitRecord
 {
 	HitRecord() = default;
-	Color3 m_color; // todo: delete this, color should be compute with all record member
 	Position3 m_hit_position;
 	Vector3 m_hit_unit_normal;
 

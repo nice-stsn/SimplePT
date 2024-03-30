@@ -51,7 +51,7 @@ void PathTracer::Render(int num_samples_per_pixel, double RussianRoulette)
 #endif // OMP_PT
 	for (int j = 0; j < height; ++j)
 	{
-		if (linecnt % 50 == 1)
+		if (linecnt % 10 == 1)
 			std::clog << "\rline: " << linecnt << '/' << height - 1 << "     " << std::endl;
 		for (int i = 0; i < width; ++i)
 		{

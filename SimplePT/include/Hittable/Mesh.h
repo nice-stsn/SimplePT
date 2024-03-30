@@ -5,13 +5,16 @@
 #include "Material/Material.h"
 #include "tiny_obj_loader.h"
 #include "Light.h"
+#include "Material/Texutre.h"
 #include <memory>
+#include <map>
 
 struct VertexAttribs
 {
 	Position3 position;
 	Vector3 normal;
-	// todo: texture, Vector2
+	double tex_u = 0.0;
+	double tex_v = 0.0;
 	
 };
 
@@ -45,10 +48,14 @@ private:
 	tinyobj::attrib_t m_attrib;
 	std::vector<tinyobj::shape_t> m_shapes; // hittables with mesh
 	std::vector<tinyobj::material_t> m_materials; 
+	std::map <std::string, std::unique_ptr<Texture>> m_textures_lookup;
 	MeshBVH* m_ptr_bvh = nullptr;
 
-	bool m_HitTriangle(const Ray& ray, const Position3& v0, const Position3& v1, const Position3& v2, double& t) const;
-	void m_GetFaceInfo(unsigned int f_id, Triangle_info& out_tri) const;
+	bool m_Moller_Trumbore(const Ray& ray,
+		const Position3& v0, const Position3& v1, const Position3& v2,
+		double& coord0, double& coord1, double& coord2,
+		double& t_out) const;
+	void m_GetFaceVertexAndMaterial(unsigned int f_id, Triangle_info& out_tri) const;
 	void m_GetVertex(const tinyobj::index_t& v_id, VertexAttribs& out_vertex) const;
 	double m_PrimitiveArea(unsigned int primitive_id) const;
 
