@@ -36,6 +36,7 @@ Mesh::Mesh(const std::string& filename, const std::string& mtl_basepath,
 	}
 	tinyobj::PrintInfo(m_attrib, m_shapes, m_materials);
 	std::cerr << "Load sucess." << std::endl;
+	std::cerr << "=====================================" << std::endl;
 	// end tinyobj load
 #ifdef DEBUG_PT
 	// check material type
@@ -88,6 +89,7 @@ Mesh::Mesh(const std::string& filename, const std::string& mtl_basepath,
 	std::clog << "Start building bvh...\nPlease wait..." << std::endl;
 	m_ptr_bvh->BuildBVH();
 	std::clog << "Build sucess." << std::endl;
+	std::cerr << "=====================================" << std::endl;
 }
 
 Mesh::~Mesh()

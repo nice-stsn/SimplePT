@@ -45,7 +45,7 @@ Vector3 Material::BRDF_PhongModel(const Vector3& wo, const Vector3& wi, const Ve
 	Vector3 all_kd = m_kd;
 	if (m_HasMapKd())
 	{
-		all_kd *= m_map_kd;
+		all_kd = (m_kd.Length() < SimplePT::EPSILON) ? m_map_kd : all_kd * m_map_kd;
 	}
 	Vector3 brdf_diffuse = all_kd / SimplePT::PI;
 	brdf_all += brdf_diffuse;

@@ -28,11 +28,6 @@ int main() {
 	unsigned int height = 0;
 	loadXmlFile(xml_filename, lights_info, eye, lookat, up, fovy, width, height);
 
-/* temp */
-	int scale = 100;    // small
-	width = scale;
-	height = scale;
-/* temp */
 
 	/* set camera */
 	Camera my_cam(eye, lookat, up, fovy, width, height);
@@ -44,7 +39,7 @@ int main() {
 	my_scn.ComputeLightInfo();
 
 	/* set path tracer */
-	const int spp = 4;
+	const int spp = 2;
 	const double rr = 0.8;
 	PathTracer my_path_tracer(my_scn, my_cam, rr);
 	my_path_tracer.Render(spp);
