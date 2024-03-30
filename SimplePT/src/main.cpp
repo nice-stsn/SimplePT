@@ -8,9 +8,9 @@
 
 int main() {
 	/* Select one example */
-	std::string example_name = "bathroom";
+	//std::string example_name = "bathroom";
 	//std::string example_name = "cornell-box";
-	//std::string example_name = "veach-mis";
+	std::string example_name = "veach-mis";
 
 	std::string resources_folder = "./example-scenes-cg23/";
 	std::string example_folder = resources_folder  + example_name + '/';

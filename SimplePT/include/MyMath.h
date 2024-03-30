@@ -26,7 +26,7 @@ namespace SimplePT {
 
 	Vector3 Reflect(const Vector3& normal, const Vector3& vec);
 
-	inline void GammaCorrection(Vector3& radiance, double gamma = 2.2)
+	inline void Linear2Gamma(Vector3& radiance, double gamma = 2.2)
 	{
 		double inv_gamma = 1 / gamma;
 		radiance.m_x = std::pow(radiance.m_x, inv_gamma);
@@ -34,6 +34,12 @@ namespace SimplePT {
 		radiance.m_z = std::pow(radiance.m_z, inv_gamma);
 	}
 
+	inline void Gamma2Linear(Vector3& vec, double gamma = 2.2)
+	{
+		vec.m_x = std::pow(vec.m_x, gamma);
+		vec.m_y = std::pow(vec.m_y, gamma);
+		vec.m_z = std::pow(vec.m_z, gamma);
+	}
 
 	// [0, 1) uniform
 	inline double GetRandomDouble_0_to_1()

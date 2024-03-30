@@ -13,7 +13,7 @@
 
 inline bool PathTracer::m_WritePixelRadiance(unsigned int x_id, unsigned int y_id, Vector3& radiance)
 {
-	SimplePT::GammaCorrection(radiance);
+	SimplePT::Linear2Gamma(radiance);
 	Color3 pixel_color(radiance.m_x, radiance.m_y, radiance.m_z);
 	return m_WritePixelColor(x_id, y_id, pixel_color);
 }
@@ -52,15 +52,20 @@ void PathTracer::Render(int num_samples_per_pixel, double RussianRoulette)
 /* debug */
 //#define PART_RENDER
 #ifdef PART_RENDER
+// wood
+const unsigned int part_l = 420;
+const unsigned int part_b = 604;
+// mirror
 //const unsigned int part_l = 700;
-//const unsigned int part_b = 700;
-const unsigned int part_l = 700;
-const unsigned int part_b = 300;
+//const unsigned int part_b = 300;
+// wall in mirror
+//const unsigned int part_l = 900;
+//const unsigned int part_b = 275;
 const int part_w = 100;
 const int part_h = 100;
 const unsigned int part_r = part_l + part_w;
 const unsigned int part_t = part_b + part_h;
-num_samples_per_pixel = 5;
+num_samples_per_pixel = 1;
 std::clog << "\nOnly part of image is rendered\n" << std::endl;
 #endif // PART_RENDER
 
