@@ -193,7 +193,6 @@ bool Mesh::Triangle_HitHappened(unsigned int tri_id, const Ray& ray, HitRecord& 
 					assert(false);
 				}
 			}
-
 			
 			out_hit_record.m_material = tri.tri_material;
 		}

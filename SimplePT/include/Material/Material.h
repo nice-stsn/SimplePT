@@ -10,6 +10,7 @@ public:
 	Material() = default;
 	Material(const tinyobj::material_t& material);
 	~Material() {}
+	inline bool isMirror() const { return m_ns >= 9999;  } // for bathroom scene
 	inline bool HasEmission() const { return m_has_emission;  }
 	inline bool HasSpecular() const { return m_has_specular;  }
 	inline Vector3 GetEmission() const { return m_emission; }

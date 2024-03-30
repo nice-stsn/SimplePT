@@ -39,7 +39,7 @@ int main() {
 	my_scn.ComputeLightInfo();
 
 	/* set path tracer */
-	const int spp = 2;
+	const int spp = 10;
 	const double rr = 0.8;
 	PathTracer my_path_tracer(my_scn, my_cam, rr);
 	my_path_tracer.Render(spp);

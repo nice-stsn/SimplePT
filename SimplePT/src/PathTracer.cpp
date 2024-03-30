@@ -50,15 +50,17 @@ void PathTracer::Render(int num_samples_per_pixel, double RussianRoulette)
 	int right = width;
 
 /* debug */
-#define PART_RENDER
+//#define PART_RENDER
 #ifdef PART_RENDER
+//const unsigned int part_l = 700;
+//const unsigned int part_b = 700;
 const unsigned int part_l = 700;
-const unsigned int part_b = 700;
-const int part_w = 50;
-const int part_h = 50;
+const unsigned int part_b = 300;
+const int part_w = 100;
+const int part_h = 100;
 const unsigned int part_r = part_l + part_w;
 const unsigned int part_t = part_b + part_h;
-num_samples_per_pixel = 100;
+num_samples_per_pixel = 5;
 std::clog << "\nOnly part of image is rendered\n" << std::endl;
 #endif // PART_RENDER
 
@@ -122,6 +124,16 @@ Vector3 PathTracer::m_RayRadiance(const Ray& ray) const
 	if (!m_scene.HitHappened(ray, hit_record))
 		return Vector3(); // defualt radiance (black)
 
+	// mirror
+	if (hit_record.m_material.isMirror())
+	{
+		if (SimplePT::GetRandomDouble_0_to_1() < m_RussianRoulette)
+		{
+			Vector3 ref_eyeray = SimplePT::Reflect(hit_record.m_hit_unit_normal, -ray.GetDirection());
+			return m_RayRadiance(Ray(hit_record.m_hit_position, ref_eyeray)) / m_RussianRoulette;
+		}
+	}
+
 	/* first term: Le(x1 -> x0) */
 	if (hit_record.m_material.HasEmission())
 	{
@@ -159,7 +171,6 @@ Vector3 PathTracer::m_RayRadiance(const Ray& ray) const
 		Vector3 wi;
 		double pdf_of_wi = -1.0;
 		SimplePT::Sample_Hemisphere_Cos_Weighted(hit_record.m_hit_unit_normal, wi, pdf_of_wi);
-		assert(pdf_of_wi > 0.0 && pdf_of_wi < 1.0);
 		Ray ray_wi(hit_record.m_hit_position, wi);
 
 		HitRecord next_obj_rec;
