@@ -9,6 +9,7 @@ static inline Vector3 TinyobjVectoVector3(const tinyobj::real_t* vec3)
 
 Material::Material(const tinyobj::material_t& material)
 {
+	/* material types */
 	//real_t ambient[3];
 	//real_t diffuse[3];
 	//real_t specular[3];
@@ -17,6 +18,7 @@ Material::Material(const tinyobj::material_t& material)
 	//real_t shininess;
 	//real_t ior;       // index of refraction
 	//real_t dissolve;  // 1 == opaque; 0 == fully transparent
+	/*=---------------*/
 
 	m_kd = TinyobjVectoVector3(material.diffuse);
 	m_ks = TinyobjVectoVector3(material.specular);
@@ -27,6 +29,8 @@ Material::Material(const tinyobj::material_t& material)
 	m_has_emission = (m_emission.Length() > SimplePT::EPSILON);
 	m_has_specular = (m_ks.Length() > SimplePT::EPSILON);
 
+	//m_map_kd = Vector3(0.0, 0.0, 0.0);
+	m_texutre_name = material.diffuse_texname;
 }
 
 Vector3 Material::BRDF_PhongModel(const Vector3& wo, const Vector3& wi, const Vector3& normal) const
@@ -38,7 +42,12 @@ Vector3 Material::BRDF_PhongModel(const Vector3& wo, const Vector3& wi, const Ve
 
 	// diffuse
 	Vector3 brdf_all;
-	Vector3 brdf_diffuse = m_kd / SimplePT::PI;
+	Vector3 all_kd = m_kd;
+	if (m_HasMapKd())
+	{
+		all_kd = (m_kd.Length() < SimplePT::EPSILON) ? m_map_kd : all_kd * m_map_kd;
+	}
+	Vector3 brdf_diffuse = all_kd / SimplePT::PI;
 	brdf_all += brdf_diffuse;
 
 	// specular

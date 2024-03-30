@@ -42,8 +42,27 @@ void PathTracer::Render(int num_samples_per_pixel, double RussianRoulette)
 	int debug_pixel_y = 50;
 	//int debug_pixel_y = 13;
 	
-	const int width = m_camera.GetWidth();
-	const int height = m_camera.GetHeight();
+	int width = m_camera.GetWidth();
+	int height = m_camera.GetHeight();
+	int buttom = 0;
+	int top = height;
+	int left = 0;
+	int right = width;
+
+/* debug */
+//#define PART_RENDER
+#ifdef PART_RENDER
+//const unsigned int part_l = 700;
+//const unsigned int part_b = 700;
+const unsigned int part_l = 700;
+const unsigned int part_b = 300;
+const int part_w = 100;
+const int part_h = 100;
+const unsigned int part_r = part_l + part_w;
+const unsigned int part_t = part_b + part_h;
+num_samples_per_pixel = 5;
+std::clog << "\nOnly part of image is rendered\n" << std::endl;
+#endif // PART_RENDER
 
 	int linecnt = 0;
 #ifdef OMP_PT
@@ -51,21 +70,25 @@ void PathTracer::Render(int num_samples_per_pixel, double RussianRoulette)
 #endif // OMP_PT
 	for (int j = 0; j < height; ++j)
 	{
-		if (linecnt % 50 == 1)
-			std::clog << "\rline: " << linecnt << '/' << height - 1 << "     " << std::endl;
+		if (linecnt % 10 == 1)
+#ifdef OMP_PT
+			std::clog << "\rprogress (lines rendered not in order): " << linecnt << '/' << height - 1 << "     " << std::endl;
+#else
+			std::clog << "\rprogress (lines rendered in order): " << linecnt << '/' << height - 1 << "     " << std::endl;
+#endif // OMP_PT
 		for (int i = 0; i < width; ++i)
 		{
-#ifdef DEBUG_PT
-			/* debug: get processing image for debuggging */
-			if (i == debug_pixel_x && j == debug_pixel_y)
-			{
-				m_WritePixelColor(i, j, Color3(255u, 0u, 0u)); // red pixel
-				stbi_write_png("image/debug.png", width, height, 
-					CHANNEL_NUM, m_frame_buffer.get(), width * CHANNEL_NUM);
-			}
-#endif // DEBUG_PT
-
 			Vector3 pixel_color_radiance(0.0, 0.0, 0.0);
+
+#ifdef PART_RENDER
+			// outside part render box
+			if (!(i >= part_l && i < part_r && j >= part_b && j < part_t))
+			{
+				m_WritePixelRadiance(i, j, pixel_color_radiance);
+				continue;
+			}
+#endif // PART_RENDER
+
 			for (int sppcnt = 0; sppcnt < num_samples_per_pixel; ++sppcnt)
 			{
 				Ray eye_ray = m_camera.CastRay(i, j); // generate ray from eye
@@ -100,6 +123,16 @@ Vector3 PathTracer::m_RayRadiance(const Ray& ray) const
 	// miss
 	if (!m_scene.HitHappened(ray, hit_record))
 		return Vector3(); // defualt radiance (black)
+
+	// mirror
+	if (hit_record.m_material.isMirror())
+	{
+		if (SimplePT::GetRandomDouble_0_to_1() < m_RussianRoulette)
+		{
+			Vector3 ref_eyeray = SimplePT::Reflect(hit_record.m_hit_unit_normal, -ray.GetDirection());
+			return m_RayRadiance(Ray(hit_record.m_hit_position, ref_eyeray)) / m_RussianRoulette;
+		}
+	}
 
 	/* first term: Le(x1 -> x0) */
 	if (hit_record.m_material.HasEmission())
@@ -138,7 +171,6 @@ Vector3 PathTracer::m_RayRadiance(const Ray& ray) const
 		Vector3 wi;
 		double pdf_of_wi = -1.0;
 		SimplePT::Sample_Hemisphere_Cos_Weighted(hit_record.m_hit_unit_normal, wi, pdf_of_wi);
-		assert(pdf_of_wi > 0.0 && pdf_of_wi < 1.0);
 		Ray ray_wi(hit_record.m_hit_position, wi);
 
 		HitRecord next_obj_rec;

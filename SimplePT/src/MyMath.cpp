@@ -7,6 +7,13 @@ namespace SimplePT
 	const double EPSILON = 0.0000001;
 	const double INF = std::numeric_limits<double>::max();
 
+	Vector3 Reflect(const Vector3& normal, const Vector3& vec)
+	{
+		Vector3 N = normal.Normalized();
+		Vector3 reflected_vec = 2 * DotProduct(vec, N) * N - vec;
+		return reflected_vec;
+	}
+
 	static Vector3 ToWorld(const Vector3& normal, const Vector3& vec)
 	{
 	   // Using right-hand coord

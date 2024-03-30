@@ -24,6 +24,8 @@ namespace SimplePT {
 		return std::abs(a - b) < EPSILON;
 	}
 
+	Vector3 Reflect(const Vector3& normal, const Vector3& vec);
+
 	inline void GammaCorrection(Vector3& radiance, double gamma = 2.2)
 	{
 		double inv_gamma = 1 / gamma;
