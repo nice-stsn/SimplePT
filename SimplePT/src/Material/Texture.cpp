@@ -27,8 +27,8 @@ Vector3 Texture::MapKdAtUV(double u, double v) const
 {
 	// u v to pixel coordinate
 	// stb_image: left_buttom (0,0), right_top(width - 1, height - 1)
-	int x = static_cast<int>(u * m_width);
-	int y = static_cast<int>((1 - v) * m_height);
+	int x = static_cast<int>(u * (m_width - 1));
+	int y = static_cast<int>((1 - v) * (m_height - 1));
 
     // clamp
     x = std::max(0, std::min(x, m_width - 1));

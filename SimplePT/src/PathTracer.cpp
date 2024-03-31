@@ -50,22 +50,25 @@ void PathTracer::Render(int num_samples_per_pixel, double RussianRoulette)
 	int right = width;
 
 /* debug */
-#define PART_RENDER
+//#define PART_RENDER
 #ifdef PART_RENDER
 // wood
-const unsigned int part_l = 800;
-const unsigned int part_b = 160;
+//const unsigned int part_l = 800;
+//const unsigned int part_b = 160;
 // mirror
 //const unsigned int part_l = 700;
 //const unsigned int part_b = 300;
 // wall in mirror
 //const unsigned int part_l = 900;
 //const unsigned int part_b = 275;
-const int part_w = 130;
-const int part_h = 350;
+//paint
+const unsigned int part_l = 433;
+const unsigned int part_b = 295;
+const int part_w = 67;
+const int part_h = 42;
 const unsigned int part_r = part_l + part_w;
 const unsigned int part_t = part_b + part_h;
-num_samples_per_pixel = 500;
+num_samples_per_pixel = 100;
 std::clog << "\nOnly part of image is rendered\n" << std::endl;
 #endif // PART_RENDER
 
@@ -216,7 +219,10 @@ Vector3 PathTracer::m_RayRadiance(const Ray& ray) const
 			SimplePT::Sample_Hemisphere_Cos_Weighted(hit_record.m_hit_unit_normal, wi, pdf_of_wi);
 
 			// not inside specular hemisphere
-			if (!sampled_specular_term && !(DotProduct(wi, R) > 0.0))
+			if (
+				(!sampled_specular_term) ||
+				(sampled_specular_term && (DotProduct(wi, R) < 0.0))
+				)
 			{
 				Ray wi_ray(hit_record.m_hit_position, wi);
 				HitRecord next_obj_rec;
