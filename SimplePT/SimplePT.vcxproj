@@ -173,6 +173,14 @@
     <ClInclude Include="third_party\tinyxml2.h" />
     <ClInclude Include="third_party\tiny_obj_loader.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="images\final_check_bathroom_spp100.png" />
+    <Image Include="images\final_check_mis_spp100.png" />
+    <Image Include="images\final_check_spp100.png" />
+    <Image Include="image\final_check_bathroom_spp100.png" />
+    <Image Include="image\final_check_mis_spp100.png" />
+    <Image Include="image\final_check_spp100.png" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
