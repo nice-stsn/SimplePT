@@ -39,9 +39,6 @@
     <ClCompile Include="src\MyMath.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Hittable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Hittable\Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -58,6 +55,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\XmlLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Hittable\Hittable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Material\Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="third_party\stb_image.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -122,5 +128,31 @@
     <ClInclude Include="include\XmlLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Material\Texutre.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="third_party\stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="image\final_check_bathroom_spp100.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="image\final_check_mis_spp100.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="image\final_check_spp100.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\final_check_bathroom_spp100.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\final_check_mis_spp100.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\final_check_spp100.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

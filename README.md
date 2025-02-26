@@ -29,7 +29,7 @@
 - 结果比较理想，很快能得到收敛结果
 - 图片：spp100
 
-![final_check_spp100](.\SimplePT\image\final_check_spp100.png)
+![final_check_spp100](.\SimplePT\images\final_check_spp100.png)
 
 ## Veach MIS
 
@@ -39,7 +39,7 @@
   - 实现了对于Light sample的时候的按照radiance进行重要性采样。
   - 如果仅仅对于光源如果用 Area 进行蒙特卡洛采样，在MIS图中左边光线会更暗。
 
-![final_check_mis_spp100](.\SimplePT\image\final_check_mis_spp100.png)
+![final_check_mis_spp100](.\SimplePT\images\final_check_mis_spp100.png)
 
 ## Bathroom
 
@@ -47,7 +47,7 @@
 - 实现了对于材质的导入和处理
 - 由于光源被遮挡，当前积分框架很难有很好的收敛效果
 
-![final_check_bathroom_spp100](.\SimplePT\image\final_check_bathroom_spp100.png)
+![final_check_bathroom_spp100](.\SimplePT\images\final_check_bathroom_spp100.png)
 
 # 问题与将来改进
 
